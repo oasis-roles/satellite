@@ -1,0 +1,9 @@
+satellite_admin_username: admin
+satellite_admin_password: CHANGEME
+satellite_organization: Default Organization
+satellite_location: Default Location
+satellite_proxy_dhcp: true
+satellite_proxy_dhcp_managed: true
+satellite_proxy_dns: true
+satellite_proxy_dns_managed: true
+satellite_answers_file_destination: /etc/foreman-installer/scenarios.d/satellite-answers.yaml

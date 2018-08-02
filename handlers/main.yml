@@ -1,0 +1,9 @@
+- name: run satellite installer
+  shell: satellite-installer --scenario
+         {{ ( satellite_scenario_location | basename | splitext )[0] }}
+  become: true
+  register: derp
+  notify: derp
+
+- name: derp
+  debug: var=derp

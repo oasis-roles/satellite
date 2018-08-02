@@ -1,0 +1,94 @@
+# Format:
+# <classname>: false - don't include this class
+# <classname>: true - include and use the defaults
+# <classname>:
+#   <param>: <value> - include and override the default(s)
+#
+# See params.pp in each class for what options are available
+
+---
+certs:
+  generate: true
+  deploy: true
+  group: foreman
+katello:
+  package_names:
+  - katello
+  - tfm-rubygem-katello
+  enable_ostree: true
+foreman:
+  admin_username: {{ satellite_admin_username }}
+  admin_password: {{ satellite_admin_password }}
+  organizations_enabled: true
+  locations_enabled: true
+  initial_organization: {{ satellite_organization }}
+  initial_location: {{ satellite_location }}
+  custom_repo: true
+  configure_epel_repo: false
+  configure_scl_repo: false
+  ssl: true
+  server_ssl_cert: /etc/pki/katello/certs/katello-apache.crt
+  server_ssl_key: /etc/pki/katello/private/katello-apache.key
+  server_ssl_ca: /etc/pki/katello/certs/katello-default-ca.crt
+  server_ssl_chain: /etc/pki/katello/certs/katello-server-ca.crt
+  server_ssl_crl: ''
+  client_ssl_cert: /etc/foreman/client_cert.pem
+  client_ssl_key: /etc/foreman/client_key.pem
+  client_ssl_ca: /etc/foreman/proxy_ca.pem
+  websockets_encrypt: true
+  websockets_ssl_key: /etc/pki/katello/private/katello-apache.key
+  websockets_ssl_cert: /etc/pki/katello/certs/katello-apache.crt
+  passenger_ruby: /usr/bin/tfm-ruby
+  passenger_ruby_package: tfm-rubygem-passenger-native
+  keepalive: true
+  max_keepalive_requests: 10000
+foreman::cli: true
+foreman::plugin::tasks: true
+foreman::plugin::templates: false
+foreman::plugin::remote_execution: true
+foreman::plugin::openscap: true
+foreman::plugin::hooks: true
+foreman::plugin::discovery: true
+foreman::plugin::bootdisk: false
+foreman::plugin::docker: true
+foreman_proxy:
+  dns: {{ satellite_proxy_dns }}
+  dns_managed: {{ satellite_proxy_dns_managed }}
+  dhcp: {{ satellite_proxy_dhcp }}
+  dhcp_managed: {{ satellite_proxy_dhcp_managed }}
+  custom_repo: true
+  http: false
+  ssl_port: '9090'
+  templates: false
+  ssl_ca: /etc/foreman-proxy/ssl_ca.pem
+  ssl_cert: /etc/foreman-proxy/ssl_cert.pem
+  ssl_key: /etc/foreman-proxy/ssl_key.pem
+  foreman_ssl_ca: /etc/foreman-proxy/foreman_ssl_ca.pem
+  foreman_ssl_cert: /etc/foreman-proxy/foreman_ssl_cert.pem
+  foreman_ssl_key: /etc/foreman-proxy/foreman_ssl_key.pem
+foreman_proxy::plugin::dhcp::remote_isc: false
+foreman_proxy::plugin::remote_execution::ssh: true
+foreman_proxy::plugin::openscap:
+  configure_openscap_repo: false
+foreman_proxy::plugin::pulp:
+  enabled: true
+  pulpnode_enabled: false
+foreman_proxy::plugin::discovery: true
+foreman_proxy_content:
+  pulp_master: true
+  templates: false
+  qpid_router_broker_addr: localhost
+puppet:
+  server: true
+  server_environments_owner: apache
+  server_foreman_ssl_cert: /etc/pki/katello/puppet/puppet_client.crt
+  server_foreman_ssl_key: /etc/pki/katello/puppet/puppet_client.key
+  server_foreman_ssl_ca: /etc/pki/katello/puppet/puppet_client_ca.crt
+  server_passenger_min_instances: 1
+foreman::compute::ec2: false
+foreman::compute::gce: false
+foreman::compute::libvirt: false
+foreman::compute::openstack: false
+foreman::compute::ovirt: false
+foreman::compute::rackspace: false
+foreman::compute::vmware: false
