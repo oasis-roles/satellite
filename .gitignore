@@ -5,4 +5,4 @@
 __pycache__/*
 molecule/*/junit.xml
 molecule/*/pytestdebug.log
-molecule/*openstack
+molecule/*/subscription.yml

@@ -1,9 +1,10 @@
 - name: run satellite installer
-  shell: satellite-installer --scenario
-         {{ ( satellite_scenario_location | basename | splitext )[0] }}
+  command: satellite-installer --scenario
+           {{ ( satellite_scenario_location | basename | splitext )[0] }}
+           --dont-save-answers
   become: true
-  register: derp
-  notify: derp
+  register: installer_output
+  notify: output installer stdout
 
-- name: derp
-  debug: var=derp
+- name: output installer stdout
+  debug: var=installer_output

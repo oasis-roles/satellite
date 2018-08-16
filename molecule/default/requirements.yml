@@ -1,0 +1,4 @@
+- oasis-roles.rhsm
+- role: oasis-roles.hostname
+  version: initial
+- oasis-roles.nmcli_add_addrs

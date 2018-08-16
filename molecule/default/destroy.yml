@@ -2,12 +2,16 @@
   hosts: localhost
   connection: local
   gather_facts: false
+  vars:
+    security_group_name: molecule
+    keypair_name: molecule_key
   tasks:
+    - include_tasks: run_hash.yml
+
     - name: Destroy molecule instance(s)
-      docker_container:
-        name: "{{ item.name }}"
+      os_server:
+        name: "{{ item.name }}-{{ run_hash }}"
         state: absent
-        force_kill: "{{ item.force_kill | default(true) }}"
       register: server
       with_items: "{{ molecule_yml.platforms }}"
       async: 7200
@@ -16,13 +20,25 @@
     - name: Wait for instance(s) deletion to complete
       async_status:
         jid: "{{ item.ansible_job_id }}"
-      register: docker_jobs
-      until: docker_jobs.finished
+      register: os_jobs
+      until: os_jobs.finished
       retries: 300
       with_items: "{{ server.results }}"
 
-    - name: Delete docker network(s)
-      docker_network:
-        name: "{{ item }}"
+    # Mandatory configuration for Molecule to function.
+
+    - name: Clear instance config
+      copy:
+        content: {}
+        dest: "{{ molecule_instance_config }}"
+      when: server.changed | bool
+
+    - name: Delete security group
+      os_security_group:
+        name: "{{ security_group_name }}-{{ run_hash }}"
         state: absent
-      with_items: "{{ molecule_yml.platforms | molecule_get_docker_networks }}"
+
+    - name: Delete remote keypair
+      os_keypair:
+        name: "{{ keypair_name }}-{{ run_hash }}"
+        state: absent

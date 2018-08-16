@@ -1,14 +1,15 @@
 dependency:
   name: galaxy
 driver:
-  name: docker
+  name: openstack
 lint:
   name: yamllint
   options:
     config-file: tests/yamllint.yml
 platforms:
-  - name: satellite
-    image: centos:7
+  - name: test-satellite
+    image: rhel-7.5-server-x86_64-updated
+    flavor: m1.xlarge
 provisioner:
   name: ansible
   lint:
@@ -17,5 +18,10 @@ scenario:
   name: default
 verifier:
   name: testinfra
+  options:
+    # Add a -v so you see the individual test names,
+    # particularly useful with parameterized tests
+    v: true
+    junit-xml: junit.xml
   lint:
     name: flake8

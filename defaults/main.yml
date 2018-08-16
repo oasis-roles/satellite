@@ -6,4 +6,5 @@ satellite_proxy_dhcp: true
 satellite_proxy_dhcp_managed: true
 satellite_proxy_dns: true
 satellite_proxy_dns_managed: true
-satellite_answers_file_destination: /etc/foreman-installer/scenarios.d/satellite-answers.yaml
+satellite_answers_file_destination: >-
+  /etc/foreman-installer/scenarios.d/satellite-answers.yaml

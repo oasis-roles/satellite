@@ -2,4 +2,6 @@
   hosts: all
   roles:
     - role: satellite
+      satellite_proxy_dhcp_managed: false
+      satellite_proxy_dns_managed: false
   post_tasks: []
