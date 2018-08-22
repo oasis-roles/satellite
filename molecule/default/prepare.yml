@@ -17,3 +17,10 @@
       nmcli_add_addrs_interface: "{{ ansible_default_ipv4.interface }}"
       nmcli_add_addrs_ipv4:
         - "{{ ansible_host | default(inventory_hostname) }}"
+    - role: oasis-roles.firewalld
+      firewalld_zone: public
+      firewalld_ports_open:
+        - proto: tcp
+          port: 80
+        - proto: tcp
+          port: 443

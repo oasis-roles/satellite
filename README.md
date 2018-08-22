@@ -25,12 +25,23 @@ Currently the following variables are supported:
 * `satellite_admin_password` - Password for the first admin user created
 * `satellite_organization` - Name of the organization that owns the Satellite server (e.g. "ABC Corp.")
 * `satellite_location` - Location the server is in (e.g. "ABC Corp Main HQ")
-* `satellite_proxy_dhcp` - Default: true - enable Satellite proxy DHCP plugin
-* `satellite_proxy_dhcp_managed` - Default: true - enable Satellite proxy DHCP plugin management
-* `satellite_proxy_dns` - Default: true - enable Satellite proxy DNS plugin
-* `satellite_proxy_dns_managed` - Default: true - enable Satellite proxy DNS plugin management
+* `satellite_enable_ssl` - Default: true - enable browser SSL access
+* `satellite_ssl_port` - Default: 443. The port to listen on for SSL connections
+* `satellite_http_port` - Default: 80. The port to serve plain browser traffic
+* `satellite_proxy_http_port` - Default: 8000. Port on which to run Satellite HTTP proxy
+* `satellite_proxy_http` - Deafult: true. Enable Satellite HTTP proxy
+* `satellite_proxy_ssl_port` - Default: 9090. Port on which to run Satellite SSL proxy
+* `satellite_proxy_ssl` - Default: true. Enable Satellite SSL proxy
+* `satellite_proxy_dhcp` - Default: true. Enable Satellite proxy DHCP plugin
+* `satellite_proxy_dhcp_managed` - Default: true. Enable Satellite proxy DHCP plugin management
+* `satellite_proxy_dns` - Default: true. Enable Satellite proxy DNS plugin
+* `satellite_proxy_dns_managed` - Default: true. Enable Satellite proxy DNS plugin management
+* `satellite_puppet_port` - Default: 8140. Port to run the Puppet server on
 * `satellite_answers_file_destination` - The scenario path to upload this specific set of Foreman
-  answers to drive the installation of Satellite
+  answers to drive the installation of Satellite. This value has reasonable defaults set that match
+  the values Foreman uses by default. If you want to store the ansewrs file somewhere else, update
+  this value to match. Be sure that this file, which will include the value of `satellite_admin_password`
+  in plaintext is not readable by users who should not be able to read it
 
 Dependencies
 ------------
@@ -97,13 +108,59 @@ it lives in and they can be added through hard coded means or through auto-detec
 above example. And for hosts that are configured directly with IP addresses that match their DNS
 entry, this step can be skipped entirely.
 
+There are a large number of firewall ports that need to be opened for Satellite to work properly.
+Keeping a full list of those ports here is unreasonable and could possibly change with different
+versions of Satellite in the future. Therefore, refer to the Satellite
+[documentation](https://access.redhat.com/documentation/en-us/red_hat_satellite/6.3/html/installation_guide/preparing_your_environment_for_installation#ports_prerequisites)
+for a description of which ports should be opened, and open the ones that you find useful.
+At the very least it is probably desirable to open the standard web ports (80 and 443) to allow
+browser-based access to the Satellite environment.
+```yaml
+- hosts: satellite
+  roles:
+    - role: oasis-roles.firewalld
+      firewalld_zone: public
+      firewalld_ports_open:
+        - proto: tcp
+          port: 80
+        - proto: tcp
+          port: 443
+```
+the others can be opened if you want to use Satellite for the different purposes served by
+those functions.
+
 Example Playbook
 ----------------
 
 ```yaml
 - hosts: satellite-servers
   roles:
+    - role: oasis-roles.rhsm
+      rhsm_repositories:
+        only:
+          - rhel-7-server-rpms
+          - rhel-server-rhscl-7-rpms
+          - rhel-7-server-satellite-6.3-rpms
+      rhsm_unregister: true
+    - role: oasis-roles.hostname
+      hostname: "fqdn.mydomain.tld"
+      hostname_inject_hosts_files: false
+    - role: oasis-roles.nmcli_add_addrs
+      nmcli_add_addrs_interface: "{{ ansible_default_ipv4.interface }}"
+      nmcli_add_addrs_ipv4:
+        - "{{ ansible_host | default(inventory_hostname) }}"
+    - role: oasis-roles.firewalld
+      firewalld_zone: public
+      firewalld_ports_open:
+        - proto: tcp
+          port: 80
+        - proto: tcp
+          port: 443
     - role: oasis-roles.satellite
+      satellite_admin_username: my_user
+      satellite_admin_password: my_derpy_p4ssw0rd
+      satellite_organization: Lexcorp, Inc.
+      satellite_location: Metropolis, USA
 ```
 
 License
@@ -114,4 +171,4 @@ GPLv3
 Author Information
 ------------------
 
-Author Name <authoremail@domain.net>
+Greg Hellings <greg.hellings@gmail.com>

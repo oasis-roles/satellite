@@ -11,22 +11,19 @@ certs:
   generate: true
   deploy: true
   group: foreman
-katello:
-  package_names:
-  - katello
-  - tfm-rubygem-katello
-  enable_ostree: true
 foreman:
   admin_username: {{ satellite_admin_username }}
   admin_password: {{ satellite_admin_password }}
-  organizations_enabled: true
-  locations_enabled: true
   initial_organization: {{ satellite_organization }}
   initial_location: {{ satellite_location }}
+  ssl: {{ satellite_enable_ssl }}
+  server_ssl_port: {{ satellite_ssl_port }}
+  server_port: {{ satellite_http_port }}
+  organizations_enabled: true
+  locations_enabled: true
   custom_repo: true
   configure_epel_repo: false
   configure_scl_repo: false
-  ssl: true
   server_ssl_cert: /etc/pki/katello/certs/katello-apache.crt
   server_ssl_key: /etc/pki/katello/private/katello-apache.key
   server_ssl_ca: /etc/pki/katello/certs/katello-default-ca.crt
@@ -43,6 +40,13 @@ foreman:
   keepalive: true
   max_keepalive_requests: 10000
 foreman::cli: true
+foreman::compute::ec2: false
+foreman::compute::gce: false
+foreman::compute::libvirt: false
+foreman::compute::openstack: false
+foreman::compute::ovirt: false
+foreman::compute::rackspace: false
+foreman::compute::vmware: false
 foreman::plugin::tasks: true
 foreman::plugin::templates: false
 foreman::plugin::remote_execution: true
@@ -56,9 +60,11 @@ foreman_proxy:
   dns_managed: {{ satellite_proxy_dns_managed }}
   dhcp: {{ satellite_proxy_dhcp }}
   dhcp_managed: {{ satellite_proxy_dhcp_managed }}
+  http_port: {{ satellite_proxy_http_port }}
+  http: {{ satellite_proxy_http }}
+  ssl_port: {{ satellite_proxy_ssl_port }}
+  ssl: {{ satellite_proxy_ssl }}
   custom_repo: true
-  http: false
-  ssl_port: '9090'
   templates: false
   ssl_ca: /etc/foreman-proxy/ssl_ca.pem
   ssl_cert: /etc/foreman-proxy/ssl_cert.pem
@@ -78,17 +84,16 @@ foreman_proxy_content:
   pulp_master: true
   templates: false
   qpid_router_broker_addr: localhost
+katello:
+  package_names:
+  - katello
+  - tfm-rubygem-katello
+  enable_ostree: true
 puppet:
+  port: {{ satellite_puppet_port }}
   server: true
   server_environments_owner: apache
   server_foreman_ssl_cert: /etc/pki/katello/puppet/puppet_client.crt
   server_foreman_ssl_key: /etc/pki/katello/puppet/puppet_client.key
   server_foreman_ssl_ca: /etc/pki/katello/puppet/puppet_client_ca.crt
   server_passenger_min_instances: 1
-foreman::compute::ec2: false
-foreman::compute::gce: false
-foreman::compute::libvirt: false
-foreman::compute::openstack: false
-foreman::compute::ovirt: false
-foreman::compute::rackspace: false
-foreman::compute::vmware: false

@@ -1,4 +1,4 @@
 - oasis-roles.rhsm
-- role: oasis-roles.hostname
-  version: initial
+- oasis-roles.hostname
 - oasis-roles.nmcli_add_addrs
+- oasis-roles.firewalld
