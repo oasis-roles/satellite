@@ -4,4 +4,5 @@
     - role: satellite
       satellite_proxy_dhcp_managed: false
       satellite_proxy_dns_managed: false
+      satellite_admin_password: my_p4assW0rd
   post_tasks: []

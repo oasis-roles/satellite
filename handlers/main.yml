@@ -7,4 +7,5 @@
   notify: output installer stdout
 
 - name: output installer stdout
-  debug: var=installer_output
+  debug:
+    var: installer_output

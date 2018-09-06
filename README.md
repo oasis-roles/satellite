@@ -21,8 +21,8 @@ Currently the following variables are supported:
 
 ### General
 
+* `satellite_admin_password` - REQUIRED! Password for the first admin user created
 * `satellite_admin_username` - First username to add as an admin of Satellite
-* `satellite_admin_password` - Password for the first admin user created
 * `satellite_organization` - Name of the organization that owns the Satellite server (e.g. "ABC Corp.")
 * `satellite_location` - Location the server is in (e.g. "ABC Corp Main HQ")
 * `satellite_enable_ssl` - Default: true - enable browser SSL access
@@ -42,6 +42,10 @@ Currently the following variables are supported:
   the values Foreman uses by default. If you want to store the ansewrs file somewhere else, update
   this value to match. Be sure that this file, which will include the value of `satellite_admin_password`
   in plaintext is not readable by users who should not be able to read it
+
+Unlike many other OASIS project roles, there is no `satellite_become_user` or
+`satellite_become` variable. The Satellite installer is very strict about system configuration and
+setup. Therefore, all tasks that require it must be executed as root.
 
 Dependencies
 ------------

@@ -1,3 +1,8 @@
+- name: ensure that satellite_admin_password is defined
+  fail:
+    msg: You must provide an admin password for satellite
+  when: satellite_admin_password is not defined
+
 - name: install satellite
   package:
     name: "{{ satellite_packages }}"
@@ -14,13 +19,11 @@
   become: true
   notify: run satellite installer
 
-- name: upload scenario file
-  template:
-    src: satellite.yaml
+- name: edit scenario file
+  lineinfile:
     dest: "{{ satellite_scenario_location }}"
-    owner: root
-    group: root
-    mode: 0600
+    line: ":answer_file: {{ satellite_answers_file_destination }}"
+    regexp: ":answer_file: .*"
   become: true
   notify: run satellite installer
 

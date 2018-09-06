@@ -1,5 +1,7 @@
 satellite_admin_username: admin
-satellite_admin_password: CHANGEME
+# Since this is a password, for security reasons we demand that the
+# user provide this as input
+#satellite_admin_password: CHANGEME
 satellite_organization: Default Organization
 satellite_location: Default Location
 satellite_enable_ssl: true
