@@ -1,0 +1,36 @@
+---
+:name: Satellite
+:description: Install Satellite server
+:enabled: true
+:log_dir: /var/log/foreman-installer
+:store_dir: ''
+:log_name: satellite.log
+:log_level: DEBUG
+:no_prefix: false
+:mapping: {}
+:answer_file: {{ satellite_answers_file_destination }}
+:installer_dir: /usr/share/katello-installer-base
+:module_dirs:
+- /usr/share/foreman-installer/modules
+- /usr/share/katello-installer-base/modules
+:colors: true
+:color_of_background: :dark
+:hook_dirs:
+- /usr/share/katello-installer-base/hooks
+:custom: {}
+:low_priority_modules: []
+:verbose_log_level: info
+:default_values_dir: /etc/foreman-installer/scenarios.d
+:hiera_config: /usr/share/foreman-installer/config/foreman-hiera.conf
+:order:
+- certs
+- foreman
+- katello
+- foreman_proxy
+- foreman_proxy::plugin::pulp
+- foreman_proxy_content
+- puppet
+:parser_cache_path:
+- /usr/share/foreman-installer/parser_cache/foreman.yaml
+- /usr/share/katello-installer-base/parser_cache/katello.yaml
+:password: X_ZAhOZSLf_-ZLoGWBOydqFKH52SC76rNLo3od0zp_g

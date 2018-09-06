@@ -1,0 +1,26 @@
+- hosts: all
+  pre_tasks:
+    - name: load subscription variables
+      include_vars: >-
+        {{ lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') }}/subscription.yml
+  roles:
+    - role: oasis-roles.rhsm
+      rhsm_repositories:
+        only:
+          - rhel-7-server-rpms
+          - rhel-server-rhscl-7-rpms
+          - rhel-7-server-satellite-6.3-rpms
+      rhsm_unregister: true
+    - role: oasis-roles.hostname
+      hostname_inject_hosts_files: false
+    - role: oasis-roles.nmcli_add_addrs
+      nmcli_add_addrs_interface: "{{ ansible_default_ipv4.interface }}"
+      nmcli_add_addrs_ipv4:
+        - "{{ ansible_host | default(inventory_hostname) }}"
+    - role: oasis-roles.firewalld
+      firewalld_zone: public
+      firewalld_ports_open:
+        - proto: tcp
+          port: 80
+        - proto: tcp
+          port: 443

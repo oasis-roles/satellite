@@ -1,0 +1,13 @@
+extends: default
+
+rules:
+  line-length:
+    level: error
+  document-start:
+    present: false
+    level: error
+  comments:
+    require-starting-space: false
+
+ignore: |
+  templates/

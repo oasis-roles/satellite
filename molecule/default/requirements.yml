@@ -1,0 +1,4 @@
+- oasis-roles.rhsm
+- oasis-roles.hostname
+- oasis-roles.nmcli_add_addrs
+- oasis-roles.firewalld
