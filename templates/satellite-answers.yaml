@@ -47,8 +47,9 @@ foreman::compute::openstack: false
 foreman::compute::ovirt: false
 foreman::compute::rackspace: false
 foreman::compute::vmware: false
+foreman::plugin::ansible: true
 foreman::plugin::tasks: true
-foreman::plugin::templates: false
+foreman::plugin::templates: true
 foreman::plugin::remote_execution: true
 foreman::plugin::openscap: true
 foreman::plugin::hooks: true
@@ -73,7 +74,8 @@ foreman_proxy:
   foreman_ssl_cert: /etc/foreman-proxy/foreman_ssl_cert.pem
   foreman_ssl_key: /etc/foreman-proxy/foreman_ssl_key.pem
 foreman_proxy::plugin::dhcp::remote_isc: false
-foreman_proxy::plugin::remote_execution::ssh: true
+foreman_proxy::plugin::remote_execution::ssh:
+  ssh_identity_dir: /var/lib/foreman-proxy/ssh
 foreman_proxy::plugin::openscap:
   configure_openscap_repo: false
 foreman_proxy::plugin::pulp:
@@ -84,11 +86,14 @@ foreman_proxy_content:
   pulp_master: true
   templates: false
   qpid_router_broker_addr: localhost
+  enable_deb: false
+foreman_proxy::plugin::ansible: true
 katello:
   package_names:
   - katello
   - tfm-rubygem-katello
   enable_ostree: true
+  enable_deb: false
 puppet:
   port: {{ satellite_puppet_port }}
   server: true
