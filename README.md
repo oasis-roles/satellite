@@ -68,7 +68,7 @@ masking of dependencies. This can be done by registering with the
 ```yaml
 - hosts: satellite
   roles:
-    - role: oasis-roles.rhsm
+    - role: oasis_roles.rhsm
       rhsm_repositories:
         only:
           - rhel-7-server-rpms
@@ -85,7 +85,7 @@ should accomplish it:
 ```yaml
 - hosts: satellite
   roles:
-    - role: oasis-roles.hostname
+    - role: oasis_roles.hostname
       hostname: "fqdn.mydomain.tld"
       hostname_inject_hosts_files: false
 ```
@@ -102,7 +102,7 @@ with code such as follows:
 ```yaml
 - hosts: satellite
   roles:
-    - role: oasis-roles.nmcli_add_addrs
+    - role: oasis_roles.nmcli_add_addrs
       nmcli_add_addrs_interface: "{{ ansible_default_ipv4.interface }}"
       nmcli_add_addrs_ipv4:
         - "{{ ansible_host | default(inventory_hostname) }}"
@@ -122,7 +122,7 @@ browser-based access to the Satellite environment.
 ```yaml
 - hosts: satellite
   roles:
-    - role: oasis-roles.firewalld
+    - role: oasis_roles.firewalld
       firewalld_zone: public
       firewalld_ports_open:
         - proto: tcp
@@ -139,28 +139,28 @@ Example Playbook
 ```yaml
 - hosts: satellite-servers
   roles:
-    - role: oasis-roles.rhsm
+    - role: oasis_roles.rhsm
       rhsm_repositories:
         only:
           - rhel-7-server-rpms
           - rhel-server-rhscl-7-rpms
           - rhel-7-server-satellite-6.3-rpms
       rhsm_unregister: true
-    - role: oasis-roles.hostname
+    - role: oasis_roles.hostname
       hostname: "fqdn.mydomain.tld"
       hostname_inject_hosts_files: false
-    - role: oasis-roles.nmcli_add_addrs
+    - role: oasis_roles.nmcli_add_addrs
       nmcli_add_addrs_interface: "{{ ansible_default_ipv4.interface }}"
       nmcli_add_addrs_ipv4:
         - "{{ ansible_host | default(inventory_hostname) }}"
-    - role: oasis-roles.firewalld
+    - role: oasis_roles.firewalld
       firewalld_zone: public
       firewalld_ports_open:
         - proto: tcp
           port: 80
         - proto: tcp
           port: 443
-    - role: oasis-roles.satellite
+    - role: oasis_roles.satellite
       satellite_admin_username: my_user
       satellite_admin_password: my_derpy_p4ssw0rd
       satellite_organization: Lexcorp, Inc.
