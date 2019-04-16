@@ -1,10 +1,11 @@
 - hosts: all
-  pre_tasks:
-    - name: load subscription variables
-      include_vars: >-
-        {{ lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') }}/subscription.yml
   roles:
     - role: oasis_roles.rhsm
+      rhsm_username: "{{ lookup('env', 'RHSM_USERNAME') }}"
+      rhsm_password: "{{ lookup('env', 'RHSM_PASSWORD') }}"
+      rhsm_server_hostname: "{{ lookup('env', 'RHSM_SERVER_HOSTNAME') }}"
+      rhsm_pool_ids: "{{ lookup('env', 'RHSM_POOL_IDS') }}"
+      rhsm_auto_attach: true
       rhsm_repositories:
         only:
           - rhel-7-server-rpms
