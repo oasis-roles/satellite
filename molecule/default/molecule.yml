@@ -8,7 +8,7 @@ lint:
     config-file: tests/yamllint.yml
 platforms:
   - name: test-satellite
-    image: rhel-7.5-server-x86_64-updated
+    image: rhel-7.6-server-x86_64-released
     flavor: m1.xlarge
 provisioner:
   name: ansible
