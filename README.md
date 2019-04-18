@@ -32,9 +32,11 @@ Currently the following variables are supported:
 * `satellite_proxy_http` - Deafult: true. Enable Satellite HTTP proxy
 * `satellite_proxy_ssl_port` - Default: 9090. Port on which to run Satellite SSL proxy
 * `satellite_proxy_ssl` - Default: true. Enable Satellite SSL proxy
-* `satellite_proxy_dhcp` - Default: true. Enable Satellite proxy DHCP plugin
+* `satellite_proxy_dhcp` - Default: false. Enable Satellite proxy DHCP plugin. If you enable this, you must
+  configure a DHCP server before running this installer.
 * `satellite_proxy_dhcp_managed` - Default: true. Enable Satellite proxy DHCP plugin management
-* `satellite_proxy_dns` - Default: true. Enable Satellite proxy DNS plugin
+* `satellite_proxy_dns` - Default: false. Enable Satellite proxy DNS plugin. If you enable this, you must
+  configure a DNS server before running this installer.
 * `satellite_proxy_dns_managed` - Default: true. Enable Satellite proxy DNS plugin management
 * `satellite_puppet_port` - Default: 8140. Port to run the Puppet server on
 * `satellite_answers_file_destination` - The scenario path to upload this specific set of Foreman

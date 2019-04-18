@@ -11,10 +11,10 @@ satellite_proxy_http_port: 8000
 satellite_proxy_http: true
 satellite_proxy_ssl_port: 9090
 satellite_proxy_ssl: true
-satellite_proxy_dhcp: true
-satellite_proxy_dhcp_managed: true
-satellite_proxy_dns: true
-satellite_proxy_dns_managed: true
+satellite_proxy_dhcp: false
+satellite_proxy_dhcp_managed: false
+satellite_proxy_dns: false
+satellite_proxy_dns_managed: false
 satellite_puppet_port: 8140
 satellite_answers_file_destination: >-
   /etc/foreman-installer/scenarios.d/satellite-answers.yaml
