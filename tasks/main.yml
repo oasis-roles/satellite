@@ -26,6 +26,3 @@
     regexp: ":answer_file: .*"
   become: true
   notify: run satellite installer
-
-- name: run installer if necessary
-  meta: flush_handlers
