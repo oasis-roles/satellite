@@ -16,8 +16,8 @@
       rhsm_unregister: true
     - role: oasis_roles.hostname
       hostname_inject_hosts_files: false
+      # yamllint disable-line rule:line-length
       hostname: host-{{ ansible_default_ipv4['address'].replace('.', '-') }}.openstacklocal
-      #hostname: "{{ lookup('dig', ansible_default_ipv4['address'], 'qtype=PTR') | regex_replace('\\.$', '') }}"
     - role: oasis_roles.nmcli_add_addrs
       nmcli_add_addrs_interface: "{{ ansible_default_ipv4.interface }}"
       nmcli_add_addrs_ipv4:
