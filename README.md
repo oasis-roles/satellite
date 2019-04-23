@@ -28,6 +28,13 @@ Currently the following variables are supported:
 * `satellite_enable_ssl` - Default: true - enable browser SSL access
 * `satellite_ssl_port` - Default: 443. The port to listen on for SSL connections
 * `satellite_http_port` - Default: 80. The port to serve plain browser traffic
+* `satellite_compute_ec2` - Default: false. Enable the Satellite plugin to manage EC2 resources.
+* `satellite_compute_gce` - Default: false. Enable the Satellite plugin to manage GCE resources.
+* `satellite_compute_libvirt` - Default: false. Enable the Satellite plugin to manage libvirt resources.
+* `satellite_compute_openstack` - Default: false. Enable the Satellite plugin to manage OpenStack resources.
+* `satellite_compute_ovirt` - Default: false. Enable the Satellite plugin to manage oVirt/RHV resources.
+* `satellite_compute_rackspace` - Default: false. Enable the Satellite plugin to manage Rackspace resources.
+* `satellite_compute_vmware` - Default: false. Enable the Satellite plugin to manage VMWare resources.
 * `satellite_proxy_http_port` - Default: 8000. Port on which to run Satellite HTTP proxy
 * `satellite_proxy_http` - Deafult: true. Enable Satellite HTTP proxy
 * `satellite_proxy_ssl_port` - Default: 9090. Port on which to run Satellite SSL proxy

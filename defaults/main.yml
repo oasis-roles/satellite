@@ -18,5 +18,10 @@ satellite_proxy_dns_managed: false
 satellite_puppet_port: 8140
 satellite_answers_file_destination: >-
   /etc/foreman-installer/scenarios.d/satellite-answers.yaml
+satellite_compute_ec2: false
+satellite_compute_gce: false
+satellite_compute_libvirt: false
 satellite_compute_openstack: false
 satellite_compute_ovirt: false
+satellite_compute_rackspace: false
+satellite_compute_vmware: false
