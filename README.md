@@ -28,13 +28,22 @@ Currently the following variables are supported:
 * `satellite_enable_ssl` - Default: true - enable browser SSL access
 * `satellite_ssl_port` - Default: 443. The port to listen on for SSL connections
 * `satellite_http_port` - Default: 80. The port to serve plain browser traffic
+* `satellite_compute_ec2` - Default: false. Enable the Satellite plugin to manage EC2 resources.
+* `satellite_compute_gce` - Default: false. Enable the Satellite plugin to manage GCE resources.
+* `satellite_compute_libvirt` - Default: false. Enable the Satellite plugin to manage libvirt resources.
+* `satellite_compute_openstack` - Default: false. Enable the Satellite plugin to manage OpenStack resources.
+* `satellite_compute_ovirt` - Default: false. Enable the Satellite plugin to manage oVirt/RHV resources.
+* `satellite_compute_rackspace` - Default: false. Enable the Satellite plugin to manage Rackspace resources.
+* `satellite_compute_vmware` - Default: false. Enable the Satellite plugin to manage VMWare resources.
 * `satellite_proxy_http_port` - Default: 8000. Port on which to run Satellite HTTP proxy
 * `satellite_proxy_http` - Deafult: true. Enable Satellite HTTP proxy
 * `satellite_proxy_ssl_port` - Default: 9090. Port on which to run Satellite SSL proxy
 * `satellite_proxy_ssl` - Default: true. Enable Satellite SSL proxy
-* `satellite_proxy_dhcp` - Default: true. Enable Satellite proxy DHCP plugin
+* `satellite_proxy_dhcp` - Default: false. Enable Satellite proxy DHCP plugin. If you enable this, you must
+  configure a DHCP server before running this installer.
 * `satellite_proxy_dhcp_managed` - Default: true. Enable Satellite proxy DHCP plugin management
-* `satellite_proxy_dns` - Default: true. Enable Satellite proxy DNS plugin
+* `satellite_proxy_dns` - Default: false. Enable Satellite proxy DNS plugin. If you enable this, you must
+  configure a DNS server before running this installer.
 * `satellite_proxy_dns_managed` - Default: true. Enable Satellite proxy DNS plugin management
 * `satellite_puppet_port` - Default: 8140. Port to run the Puppet server on
 * `satellite_answers_file_destination` - The scenario path to upload this specific set of Foreman
@@ -68,7 +77,7 @@ masking of dependencies. This can be done by registering with the
 ```yaml
 - hosts: satellite
   roles:
-    - role: oasis-roles.rhsm
+    - role: oasis_roles.rhsm
       rhsm_repositories:
         only:
           - rhel-7-server-rpms
@@ -85,7 +94,7 @@ should accomplish it:
 ```yaml
 - hosts: satellite
   roles:
-    - role: oasis-roles.hostname
+    - role: oasis_roles.hostname
       hostname: "fqdn.mydomain.tld"
       hostname_inject_hosts_files: false
 ```
@@ -102,7 +111,7 @@ with code such as follows:
 ```yaml
 - hosts: satellite
   roles:
-    - role: oasis-roles.nmcli_add_addrs
+    - role: oasis_roles.nmcli_add_addrs
       nmcli_add_addrs_interface: "{{ ansible_default_ipv4.interface }}"
       nmcli_add_addrs_ipv4:
         - "{{ ansible_host | default(inventory_hostname) }}"
@@ -122,7 +131,7 @@ browser-based access to the Satellite environment.
 ```yaml
 - hosts: satellite
   roles:
-    - role: oasis-roles.firewalld
+    - role: oasis_roles.firewalld
       firewalld_zone: public
       firewalld_ports_open:
         - proto: tcp
@@ -139,28 +148,28 @@ Example Playbook
 ```yaml
 - hosts: satellite-servers
   roles:
-    - role: oasis-roles.rhsm
+    - role: oasis_roles.rhsm
       rhsm_repositories:
         only:
           - rhel-7-server-rpms
           - rhel-server-rhscl-7-rpms
           - rhel-7-server-satellite-6.3-rpms
       rhsm_unregister: true
-    - role: oasis-roles.hostname
+    - role: oasis_roles.hostname
       hostname: "fqdn.mydomain.tld"
       hostname_inject_hosts_files: false
-    - role: oasis-roles.nmcli_add_addrs
+    - role: oasis_roles.nmcli_add_addrs
       nmcli_add_addrs_interface: "{{ ansible_default_ipv4.interface }}"
       nmcli_add_addrs_ipv4:
         - "{{ ansible_host | default(inventory_hostname) }}"
-    - role: oasis-roles.firewalld
+    - role: oasis_roles.firewalld
       firewalld_zone: public
       firewalld_ports_open:
         - proto: tcp
           port: 80
         - proto: tcp
           port: 443
-    - role: oasis-roles.satellite
+    - role: oasis_roles.satellite
       satellite_admin_username: my_user
       satellite_admin_password: my_derpy_p4ssw0rd
       satellite_organization: Lexcorp, Inc.

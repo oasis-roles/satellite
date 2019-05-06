@@ -1,0 +1,31 @@
+- hosts: all
+  roles:
+    - role: oasis_roles.rhsm
+      rhsm_username: "{{ lookup('env', 'OASIS_RHSM_USERNAME') }}"
+      rhsm_password: "{{ lookup('env', 'OASIS_RHSM_PASSWORD') }}"
+      rhsm_server_hostname: "{{ lookup('env', 'OASIS_RHSM_SERVER_HOSTNAME') }}"
+      rhsm_pool_ids: "{{ lookup('env', 'OASIS_RHSM_POOL_IDS') }}"
+      rhsm_auto_attach: true
+      rhsm_repositories:
+        only:
+          - rhel-7-server-rpms
+          - rhel-server-rhscl-7-rpms
+          - rhel-7-server-satellite-6.4-rpms
+          - rhel-7-server-satellite-maintenance-6-rpms
+          - rhel-7-server-ansible-2.6-rpms
+      rhsm_unregister: true
+    - role: oasis_roles.hostname
+      hostname_inject_hosts_files: false
+      # yamllint disable-line rule:line-length
+      hostname: host-{{ ansible_default_ipv4['address'].replace('.', '-') }}.openstacklocal
+    - role: oasis_roles.nmcli_add_addrs
+      nmcli_add_addrs_interface: "{{ ansible_default_ipv4.interface }}"
+      nmcli_add_addrs_ipv4:
+        - "{{ ansible_host | default(inventory_hostname) }}"
+    - role: oasis_roles.firewalld
+      firewalld_zone: public
+      firewalld_ports_open:
+        - proto: tcp
+          port: 80
+        - proto: tcp
+          port: 443

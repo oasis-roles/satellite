@@ -7,18 +7,18 @@ lint:
   options:
     config-file: tests/yamllint.yml
 platforms:
-  - name: test-satellite
+  - name: test-satellite-compute
     image: rhel-7.6-server-x86_64-released
     flavor: m1.xlarge
 provisioner:
   name: ansible
   lint:
     name: ansible-lint
+  playbooks:
+    prepare: ../shared/prepare.yml
   config_options:
     defaults:
       stdout_callback: yaml
-  playbooks:
-    prepare: ../shared/prepare.yml
 verifier:
   name: testinfra
   options:

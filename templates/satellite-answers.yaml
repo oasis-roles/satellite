@@ -40,13 +40,13 @@ foreman:
   keepalive: true
   max_keepalive_requests: 10000
 foreman::cli: true
-foreman::compute::ec2: false
-foreman::compute::gce: false
-foreman::compute::libvirt: false
-foreman::compute::openstack: false
-foreman::compute::ovirt: false
-foreman::compute::rackspace: false
-foreman::compute::vmware: false
+foreman::compute::ec2: {{ satellite_compute_ec2 }}
+foreman::compute::gce: {{ satellite_compute_gce }}
+foreman::compute::libvirt: {{ satellite_compute_libvirt }}
+foreman::compute::openstack: {{ satellite_compute_openstack }}
+foreman::compute::ovirt: {{ satellite_compute_ovirt }}
+foreman::compute::rackspace: {{ satellite_compute_rackspace }}
+foreman::compute::vmware: {{ satellite_compute_vmware }}
 foreman::plugin::ansible: true
 foreman::plugin::tasks: true
 foreman::plugin::templates: true
