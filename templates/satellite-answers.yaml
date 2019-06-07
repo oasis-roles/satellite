@@ -24,18 +24,18 @@ foreman:
   custom_repo: true
   configure_epel_repo: false
   configure_scl_repo: false
-  server_ssl_cert: /etc/pki/katello/certs/katello-apache.crt
-  server_ssl_key: /etc/pki/katello/private/katello-apache.key
-  server_ssl_ca: /etc/pki/katello/certs/katello-default-ca.crt
-  server_ssl_chain: /etc/pki/katello/certs/katello-server-ca.crt
+  server_ssl_cert: "/etc/pki/katello/certs/katello-apache.crt"
+  server_ssl_key: "/etc/pki/katello/private/katello-apache.key"
+  server_ssl_ca: "/etc/pki/katello/certs/katello-default-ca.crt"
+  server_ssl_chain: "/etc/pki/katello/certs/katello-server-ca.crt"
   server_ssl_crl: ''
-  client_ssl_cert: /etc/foreman/client_cert.pem
-  client_ssl_key: /etc/foreman/client_key.pem
-  client_ssl_ca: /etc/foreman/proxy_ca.pem
+  client_ssl_cert: "/etc/foreman/client_cert.pem"
+  client_ssl_key: "/etc/foreman/client_key.pem"
+  client_ssl_ca: "/etc/foreman/proxy_ca.pem"
   websockets_encrypt: true
-  websockets_ssl_key: /etc/pki/katello/private/katello-apache.key
-  websockets_ssl_cert: /etc/pki/katello/certs/katello-apache.crt
-  passenger_ruby: /usr/bin/tfm-ruby
+  websockets_ssl_key: "/etc/pki/katello/private/katello-apache.key"
+  websockets_ssl_cert: "/etc/pki/katello/certs/katello-apache.crt"
+  passenger_ruby: "/usr/bin/tfm-ruby"
   passenger_ruby_package: tfm-rubygem-passenger-native
   keepalive: true
   max_keepalive_requests: 10000
@@ -67,15 +67,15 @@ foreman_proxy:
   ssl: {{ satellite_proxy_ssl }}
   custom_repo: true
   templates: false
-  ssl_ca: /etc/foreman-proxy/ssl_ca.pem
-  ssl_cert: /etc/foreman-proxy/ssl_cert.pem
-  ssl_key: /etc/foreman-proxy/ssl_key.pem
-  foreman_ssl_ca: /etc/foreman-proxy/foreman_ssl_ca.pem
-  foreman_ssl_cert: /etc/foreman-proxy/foreman_ssl_cert.pem
-  foreman_ssl_key: /etc/foreman-proxy/foreman_ssl_key.pem
+  ssl_ca: "/etc/foreman-proxy/ssl_ca.pem"
+  ssl_cert: "/etc/foreman-proxy/ssl_cert.pem"
+  ssl_key: "/etc/foreman-proxy/ssl_key.pem"
+  foreman_ssl_ca: "/etc/foreman-proxy/foreman_ssl_ca.pem"
+  foreman_ssl_cert: "/etc/foreman-proxy/foreman_ssl_cert.pem"
+  foreman_ssl_key: "/etc/foreman-proxy/foreman_ssl_key.pem"
 foreman_proxy::plugin::dhcp::remote_isc: false
 foreman_proxy::plugin::remote_execution::ssh:
-  ssh_identity_dir: /var/lib/foreman-proxy/ssh
+  ssh_identity_dir: "/var/lib/foreman-proxy/ssh"
 foreman_proxy::plugin::openscap:
   configure_openscap_repo: false
 foreman_proxy::plugin::pulp:
@@ -98,7 +98,7 @@ puppet:
   port: {{ satellite_puppet_port }}
   server: true
   server_environments_owner: apache
-  server_foreman_ssl_cert: /etc/pki/katello/puppet/puppet_client.crt
-  server_foreman_ssl_key: /etc/pki/katello/puppet/puppet_client.key
-  server_foreman_ssl_ca: /etc/pki/katello/puppet/puppet_client_ca.crt
+  server_foreman_ssl_cert: "/etc/pki/katello/puppet/puppet_client.crt"
+  server_foreman_ssl_key: "/etc/pki/katello/puppet/puppet_client.key"
+  server_foreman_ssl_ca: "/etc/pki/katello/puppet/puppet_client_ca.crt"
   server_passenger_min_instances: 1
