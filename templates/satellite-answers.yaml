@@ -66,13 +66,15 @@ foreman_proxy:
   ssl_port: {{ satellite_proxy_ssl_port }}
   ssl: {{ satellite_proxy_ssl }}
   custom_repo: true
-  templates: false
+  templates: true
   ssl_ca: "/etc/foreman-proxy/ssl_ca.pem"
   ssl_cert: "/etc/foreman-proxy/ssl_cert.pem"
   ssl_key: "/etc/foreman-proxy/ssl_key.pem"
   foreman_ssl_ca: "/etc/foreman-proxy/foreman_ssl_ca.pem"
   foreman_ssl_cert: "/etc/foreman-proxy/foreman_ssl_cert.pem"
   foreman_ssl_key: "/etc/foreman-proxy/foreman_ssl_key.pem"
+  use_autosignfile: true
+  manage_puppet_group: false
 foreman_proxy::plugin::dhcp::remote_isc: false
 foreman_proxy::plugin::remote_execution::ssh:
   ssh_identity_dir: "/var/lib/foreman-proxy/ssh"
@@ -102,3 +104,5 @@ puppet:
   server_foreman_ssl_key: "/etc/pki/katello/puppet/puppet_client.key"
   server_foreman_ssl_ca: "/etc/pki/katello/puppet/puppet_client_ca.crt"
   server_passenger_min_instances: 1
+foreman_proxy::plugin::dns::infoblox: false
+foreman_proxy::plugin::dhcp::infoblox: false
