@@ -19,9 +19,6 @@ foreman:
   ssl: {{ satellite_enable_ssl }}
   server_ssl_port: {{ satellite_ssl_port }}
   server_port: {{ satellite_http_port }}
-  organizations_enabled: true
-  locations_enabled: true
-  custom_repo: true
   configure_epel_repo: false
   configure_scl_repo: false
   server_ssl_cert: "/etc/pki/katello/certs/katello-apache.crt"
@@ -35,11 +32,11 @@ foreman:
   websockets_encrypt: true
   websockets_ssl_key: "/etc/pki/katello/private/katello-apache.key"
   websockets_ssl_cert: "/etc/pki/katello/certs/katello-apache.crt"
-  passenger_ruby: "/usr/bin/tfm-ruby"
-  passenger_ruby_package: tfm-rubygem-passenger-native
   keepalive: true
   max_keepalive_requests: 10000
+  user_groups: []
 foreman::cli: true
+foreman::cli::kubevirt: false
 foreman::compute::ec2: {{ satellite_compute_ec2 }}
 foreman::compute::gce: {{ satellite_compute_gce }}
 foreman::compute::libvirt: {{ satellite_compute_libvirt }}
@@ -48,14 +45,16 @@ foreman::compute::ovirt: {{ satellite_compute_ovirt }}
 foreman::compute::rackspace: {{ satellite_compute_rackspace }}
 foreman::compute::vmware: {{ satellite_compute_vmware }}
 foreman::plugin::ansible: true
-foreman::plugin::tasks: true
+foreman::plugin::tasks:
+    automatic_cleanup: true
+    cron_line: 45 19 * * *
 foreman::plugin::templates: true
 foreman::plugin::remote_execution: true
 foreman::plugin::openscap: true
+foreman::plugin::kubevirt: false
 foreman::plugin::hooks: true
 foreman::plugin::discovery: true
 foreman::plugin::bootdisk: false
-foreman::plugin::docker: true
 foreman_proxy:
   dns: {{ satellite_proxy_dns }}
   dns_managed: {{ satellite_proxy_dns_managed }}
@@ -65,7 +64,6 @@ foreman_proxy:
   http: {{ satellite_proxy_http }}
   ssl_port: {{ satellite_proxy_ssl_port }}
   ssl: {{ satellite_proxy_ssl }}
-  custom_repo: true
   templates: true
   ssl_ca: "/etc/foreman-proxy/ssl_ca.pem"
   ssl_cert: "/etc/foreman-proxy/ssl_cert.pem"
@@ -73,7 +71,6 @@ foreman_proxy:
   foreman_ssl_ca: "/etc/foreman-proxy/foreman_ssl_ca.pem"
   foreman_ssl_cert: "/etc/foreman-proxy/foreman_ssl_cert.pem"
   foreman_ssl_key: "/etc/foreman-proxy/foreman_ssl_key.pem"
-  use_autosignfile: true
   manage_puppet_group: false
 foreman_proxy::plugin::dhcp::remote_isc: false
 foreman_proxy::plugin::remote_execution::ssh:
@@ -91,9 +88,6 @@ foreman_proxy_content:
   enable_deb: false
 foreman_proxy::plugin::ansible: true
 katello:
-  package_names:
-  - katello
-  - tfm-rubygem-katello
   enable_ostree: true
   enable_deb: false
 puppet:
@@ -103,6 +97,5 @@ puppet:
   server_foreman_ssl_cert: "/etc/pki/katello/puppet/puppet_client.crt"
   server_foreman_ssl_key: "/etc/pki/katello/puppet/puppet_client.key"
   server_foreman_ssl_ca: "/etc/pki/katello/puppet/puppet_client_ca.crt"
-  server_passenger_min_instances: 1
 foreman_proxy::plugin::dns::infoblox: false
 foreman_proxy::plugin::dhcp::infoblox: false
