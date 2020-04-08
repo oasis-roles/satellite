@@ -1,0 +1,76 @@
+---
+- name: create_local_repo | Disable amazon-id.conf
+  lineinfile:
+    path: /etc/yum/pluginconf.d/amazon-id.conf
+    regexp: '^enabled=1'
+    line: enabled=0
+    backrefs: yes
+
+- name: create_local_repo | Get a list of all the files in /etc/yum.repos.d
+  find:
+    paths: /etc/yum.repos.d
+    patterns: "*.repo"
+  register: repo_files
+
+- name: create_local_repo | Remove any file in /etc/yum.repos.d that isn't redhat.repo
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  when: item.path != "/etc/yum.repos.d/redhat.repo"
+  with_items: "{{ repo_files.files }}"
+
+- name: create_local_repo | Create disconnected.repo
+  file:
+    path: /etc/yum.repos.d/disconnected.repo
+    owner: root
+    group: root
+    mode: '0644'
+    state: touch
+
+- name: create_local_repo | Create disconnected repo
+  blockinfile:
+    path: /etc/yum.repos.d/disconnected.repo
+    block: |
+      [rhel-7-server-rpms]
+      baseurl = "{{ content_source }}"content/dist/rhel/server/7/7Server/x86_64/os/
+      name = Red Hat Enterprise Linux 7 Server (RPMs)
+      enabled = 1
+      gpgcheck = 0
+
+      [rhel-7-server-satellite-6.6-rpms]
+      baseurl = "{{ content_source }}"content/dist/rhel/server/7/7Server/x86_64/satellite/6.6/os/
+      name = Red Hat Satellite 6.6 (for RHEL 7 Server) (RPMs)
+      enabled = 1
+      gpgcheck = 0
+
+      [rhel-7-server-ansible-2.8-rpms]
+      baseurl = "{{ content_source }}"content/dist/rhel/server/7/7Server/x86_64/ansible/2.6/os/
+      name = Red Hat Ansible Engine 2.6 RPMs for Red Hat Enterprise Linux 7 Server x86_64
+      enabled = 1
+      gpgcheck = 0
+
+      [rhel-7-server-satellite-maintenance-6-rpms]
+      baseurl = "{{ content_source }}"content/dist/rhel/server/7/7Server/x86_64/sat-maintenance/6/os/
+      name = Red Hat Satellite Maintenance 6 for RHEL 7 Server RPMs x86_64
+      enabled = 1
+      gpgcheck = 0
+
+      [rhel-server-rhscl-7-rpms]
+      baseurl = "{{ content_source }}"content/dist/rhel/server/7/7Server/x86_64/rhscl/1/os/
+      name = Red Hat Software Collections RPMs for Red Hat Enterprise Linux 7 Server x86_64 7Server
+      enabled = 1
+      gpgcheck = 0
+
+- name: create_local_repo | Upload custom CA for content source
+  copy:
+    src: "{{ content_source_ca }}"
+    dest: "/etc/pki/ca-trust/source/anchors/{{ content_source_ca }}"
+    owner: root
+    group: root
+    mode: 0640
+  when: content_source_ca is defined
+
+- name: create_local_repo | Update CA trust with custom CA for content source
+  shell: update-ca-trust extract
+  when: content_source_ca is defined
+

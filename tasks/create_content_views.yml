@@ -1,0 +1,87 @@
+---
+- name: Satellite | create_content_views | Create content views
+  command: hammer content-view create --name "{{ item.name }}"  --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ content_views }}"
+  register: cmd
+  failed_when: cmd.rc not in [65,0]
+
+- name: Satellite | create_content_views | Search for third party repos
+  shell: hammer repository list | grep -v -e redhat.com -e "--" -e NAME | awk '{ print $1 }'
+  register: third_party
+
+- name: Satellite | create_content_views | Add repositories to third part content view
+  command: hammer content-view add-repository --name third_party-cv --repository-id {{ item }} --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ third_party.stdout_lines }}"
+
+- name: Satellite | create_content_views | Search for RHEL 7 repos
+  shell: hammer repository list | grep "Red Hat" | grep -i "7Server" | grep -v -e OpenShift -e "--" -e NAME | awk '{print $1}'
+  register: rhel7
+
+- name: Satellite | create_content_views | Add repositories to rhel7-cv
+  command: hammer content-view add-repository --name rhel7-cv --repository-id {{ item }} --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ rhel7.stdout_lines }}"
+
+- name: Satellite | create_content_views | Search for RHEL 8 repos
+  shell: hammer repository list | grep "Red Hat" | grep -i "rhel8" | grep -v -e OpenShift -e "--" -e NAME | awk '{print $1}'
+  register: rhel8
+
+- name: Satellite | create_content_views | Add repositories to rhel-cv
+  command: hammer content-view add-repository --name rhel8-cv --repository-id {{ item }} --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ rhel8.stdout_lines }}"
+
+- name: create_content_views | Search for OpenShift repos
+  shell: hammer repository list | grep "OpenShift" | grep -v -e "--" -e NAME | awk '{print $1}'
+  register: openshift
+
+- name: Satellite | create_content_views | Add repositories to ocp-cv
+  command: hammer content-view add-repository --name ocp-cv --repository-id {{ item }} --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ openshift.stdout_lines }}"
+
+- name: create_content_views | Search for OpenShift repos
+  shell: hammer repository list | grep -i "ubi" | grep -v -e "--" -e NAME | awk '{print $1}'
+  register: ubi
+
+- name: Satellite | create_content_views | Add repositories to ocp-cv
+  command: hammer content-view add-repository --name ubi-cv --repository-id {{ item }} --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ ubi.stdout_lines }}"
+
+- name: Satellite | create_content_views | Publish content views
+  command: hammer content-view publish --name {{ item.name }} --major 1 --minor 0 --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ content_views }}"
+  register: cv
+  failed_when: cv.rc not in [128,0]
+
+- name: Satellite | create_content_views | Create composite content views
+  command: hammer content-view create --name "{{ item.name }}" --composite --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ composite_content_view }}"
+  register: cmd
+  failed_when: cmd.rc not in [65,0]
+
+- name: Satellite | create_content_views | Update composite views
+  command: hammer content-view component add --component-content-view {{ item.cv1 }} --composite-content-view {{ item.name }} --organization  "{{ foreman_initial_organization }}" --latest
+  with_items:
+   - "{{ composite_content_view }}"
+  register: cmd
+  failed_when: cmd.rc not in [65,0]
+
+- name: Satellite | create_content_views | Update composite views
+  command: hammer content-view component add --component-content-view {{ item.cv2 }} --composite-content-view {{ item.name }} --organization  "{{ foreman_initial_organization }}" --latest
+  with_items:
+    - "{{ composite_content_view }}"
+  register: cmd
+  failed_when: cmd.rc not in [65,0]
+
+- name: Satellite | create_content_views | Publishing content views
+  command: hammer content-view publish --name {{ item.name }} --major 1 --minor 0 --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ composite_content_view }}"
+  register: cv
+  failed_when: cv.rc not in [128,0]

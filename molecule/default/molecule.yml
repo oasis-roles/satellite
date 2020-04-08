@@ -1,32 +1,29 @@
+---
 dependency:
   name: galaxy
 driver:
-  name: openstack
+  name: ec2
 lint:
   name: yamllint
-  options:
-    config-file: tests/yamllint.yml
 platforms:
-  - name: test-satellite
-    image: rhel-7.6-server-x86_64-released
-    flavor: m1.xlarge
+  - name: dev-satellite-cmckee
+    #image: ami-a1d349c0
+    image: ami-da725fbb
+    instance_type: t3.2xlarge
+    count: 1
+    #vpc_subnet_id: subnet-0f5d0c6b
+    #vpc_subnet_id: subnet-e1d4df85
+    vpc_subnet_id: subnet-c52221a1
+    Type: dev_sat
+    Function: dev_sat
+    Zone: Presentation
 provisioner:
   name: ansible
   lint:
     name: ansible-lint
-  config_options:
-    defaults:
-      stdout_callback: yaml
-  playbooks:
-    prepare: ../shared/prepare.yml
 verifier:
   name: testinfra
-  options:
-    # Add a -v so you see the individual test names,
-    # particularly useful with parameterized tests
-    v: true
-    junit-xml: junit.xml
-  additional_files_or_dirs:
-    - ../../shared/tests
   lint:
     name: flake8
+
+ssh_user: pipeline

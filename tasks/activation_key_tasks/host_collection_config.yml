@@ -1,0 +1,19 @@
+---
+# TASKS
+  
+- name: activation_key_tasks | host_collection_config |  | Set a flag to show whether or not this Host Collection was in the key's list of host collections
+  set_fact:    
+    collection_associated_to_key: true
+  when:
+    - key_info_json.rc == 0
+    - (key_info_json.stdout | from_json)["Host Collections"] is defined
+    - ('\''+key_host_collection.name+'\'') in (((key_info_json.stdout | from_json)["Host Collections"]) | string)
+  
+- name: activation_key_tasks | host_collection_config |  | Associate the Host Collection with the key
+  command: > 
+    hammer activation-key add-host-collection
+    --organization "{{ org.name }}"
+    --name "{{ key.name }}"
+    --host-collection "{{ key_host_collection.name }}"
+  when: ((collection_associated_to_key | default(false)) == false)
+

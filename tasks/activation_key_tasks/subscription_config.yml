@@ -1,0 +1,46 @@
+---
+# TASKS
+
+- block:
+    - name: activation_key_tasks | subscription_config | Set a variable to represent the string of the Subscription to grep for
+      set_fact:
+        subscription_grep_string: "{{ key_subscription.name }}"
+   
+    - name: activation_key_tasks | subscription_config | Get the ID of the subscription based on the name (WILL NEVER BE STATUS=CHANGED)
+      shell: >
+        hammer --no-headers --csv subscription list
+        --organization "{{ org.name }}"
+        | grep '{{ subscription_grep_string }}'
+        | gawk -F, '$1 ~ /[0-9]/ {print $1}'
+      register: subscription_id_output
+      changed_when: false
+      
+    - fail:
+        msg: Failed to find the Subscription ID for "\"{{ key_subscription.name }}\"
+        #msg: Failed to find the Subscription ID for "\"{{ key_subscription.name }}\",{{ key_subscription.type }},{{ key_subscription.contract }},{{ key_subscription.account }},{{ key_subscription.support }},{{ key_subscription.end_date }},{{ key_subscription.quantity }}"
+      when: (subscription_id_output.stdout == "")
+
+- name: activation_key_tasks | subscription_config | Ensure the current Subscription is added based on ID
+  block:
+    - name: activation_key_tasks | subscription_config | See if the subscription is already added to the key by fetching the ID (WILL ALWAYS BE STATUS=OK)
+      shell: >
+        hammer --no-headers --csv activation-key subscriptions
+        --organization "{{ org.name }}"
+        --name "{{ key.name }}"
+        --search "{{ key_subscription.name }}"
+        | gawk -F, '$1 ~ /[0-9]/ {print $1}'
+        | grep "^{{ subscription_id_output.stdout }}$"
+      register: key_subscription_search_id
+      changed_when: false
+      failed_when: false
+      
+    - name: activation_key_tasks | subscription_config | Add the Subscription ID to the activation key if it isn't already
+      shell: >
+        hammer activation-key add-subscription
+        --organization "{{ org.name }}"
+        --name "{{ key.name }}"
+        --subscription-id "{{ subscription_id_output.stdout }}"
+      register: add_subscrpition_output
+      changed_when: ("Subscription added to activation key" in add_subscrpition_output.stdout)
+      when: subscription_id_output.stdout != key_subscription_search_id.stdout
+

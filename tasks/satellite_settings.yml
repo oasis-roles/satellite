@@ -1,0 +1,28 @@
+---
+# TASKS
+- name: satellite_settings | Change download policy to immediate
+  shell: hammer settings set --name default_download_policy --value immediate
+  failed_when: false
+
+- name: satellite_settings | Change "Delete Host upon unregister" from no to yes
+  become: yes
+  shell: >
+    hammer settings set --name "unregister_delete_host" --value "true"
+  failed_when: false
+
+- name: satellite_settings | Change "Installable errata from Content View" from no to yes
+  shell: >
+    hammer settings set --name "errata_status_installable" --value "true"
+  failed_when: false
+
+- name: satellite_settings | DOD warning banner
+  shell: >
+    hammer settings set --name "login_text"  --value "I've read & consent to terms in IS user agreement."
+  failed_when: false
+
+- name: satellite_settings | Set satellite to disconnected
+  shell: >
+    hammer settings set --name "content_disconnected"  --value "true"
+  when: rhn_connect == 'disconnect'
+  failed_when: false
+

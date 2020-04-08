@@ -1,0 +1,44 @@
+---
+- name: master_settings | Create symlink
+  file:
+    src: "/var/lib/pulp/published/yum/https/repos/{{ lookup('env','FOREMAN_INITIAL_ORGANIZATION') }}/Library"
+    dest: /var/www/html/pub/iss
+    state: link
+
+- name: master_settings | Crearw export content view
+  command: hammer content-view create --name export --organization "{{ foreman_initial_organization }}"
+  register: export
+  failed_when: export.rc not in [65,0]
+
+- name: master_settings | Get all repositories
+  shell: hammer repository list | grep -v -e "--" -e "ID" | awk '{ print $1}'
+  register: repo_id
+
+- name: master_settings | Publish export content view
+  command: hammer content-view publish --name export --major 1 --minor 0 --organization "{{ foreman_initial_organization }}"
+  register: cv
+  failed_when: cv.rc not in [128,0]
+
+- name: master_settings | Add Repositories to Export content view
+  command: hammer content-view add-repository --name export --repository-id {{ item }} --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ repo_id.stdout_lines }}"
+
+- name:  master_settings | copy export_cv.sh
+  copy:
+    src: files/export_cv.sh
+    dest: /usr/local/bin/export_cv.sh
+    owner: root
+    group: root
+    mode: '0770'
+
+- name: master_settings | start the export process
+  shell: screen -d -m /usr/local/bin/export_cv.sh
+
+- name: master_settings | Create content_view shell script
+  copy:
+    src: files/promote_content_view.sh
+    dest: /usr/local/bin/promote_content_view.sh
+    owner: root
+    group: root
+    mode: '0770'

@@ -1,0 +1,35 @@
+---
+- name: create_activation_keys | Create activation keys
+  command: hammer activation-key create --name {{ item.name }} --content-view {{ item.content_view }} --lifecycle-environment {{ item.lifecycle_environment }} --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ activation_keys }}"
+  register: cmd
+  failed_when: cmd.rc not in [65,0]
+
+
+- name: create_activation_keys | Add subscriptions to the activation key
+  shell: hammer subscription list --organization-id 1 | grep "{{ item.subscriptions }}" | awk '{ print $1 }' | xargs hammer activation-key add-subscription --name {{ item.name }} --organization "{{ foreman_initial_organization }}" --subscription-id
+  with_items:
+    - "{{ activation_keys }}"
+  register: cmd
+  failed_when: cmd.rc not in [123,0]
+
+
+- name: create_activation_keys | Add third party subscriptions to the activation key
+  shell: hammer subscription list --organization "{{ foreman_initial_organization }}" | grep "Treasure_Agent" | awk '{ print $1 }' | xargs hammer activation-key add-subscription --name {{ item.name }} --organization "{{ foreman_initial_organization }}" --subscription-id
+  with_items:
+    - "{{ activation_keys }}"
+  register: cmd
+  failed_when: cmd.rc not in [123,0]
+
+- name: create_activation_keys | Enable default repos
+  shell:
+      hammer activation-key content-override --name {{ item.name }} --content-label {{ item.label1 }} --override-name enabled --value true --organization "{{ foreman_initial_organization }}" ;
+      hammer activation-key content-override --name {{ item.name }} --content-label {{ item.label2 }} --override-name enabled --value true --organization "{{ foreman_initial_organization }}" ;
+      hammer activation-key content-override --name {{ item.name }} --content-label {{ item.label3 }} --override-name enabled --value true --organization "{{ foreman_initial_organization }}" ;
+      hammer activation-key content-override --name {{ item.name }} --content-label {{ item.label4 }} --override-name enabled --value true --organization "{{ foreman_initial_organization }}" ;
+      hammer activation-key content-override --name {{ item.name }} --content-label {{ item.label5 }} --override-name enabled --value true --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ activation_keys }}"
+  register: cmd
+  failed_when: cmd.rc not in [123,0]

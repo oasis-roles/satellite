@@ -1,4 +1,43 @@
-satellite_packages:
-  - satellite
+---
+# vars file for prefab-role
+satellite_fw_service_name: RH-Satellite-6
+satellite_vg_name: sat_vg01
+server_basearch: "x86_64"
+server_releasever: "7Server"
+satellite_deployment_version: "6.6"
+satellite_manifest: /opt/satellite_manifest.zip
+rpm_gpg_key_epel_7: /opt/rpm_gpg_key_epel_7
+rpm_gpg_key_gitlab: /opt/rpm_gpg_key_gitlab
+RHSCL_product: "Red Hat Software Collections (for RHEL Server)"
+RHSCL_name: "Red Hat Software Collections RPMs for Red Hat Enterprise Linux 7 Server"
 
-satellite_scenario_location: /etc/foreman-installer/scenarios.d/satellite.yaml
+satellite_repos:
+  - name: rhel-7-server-satellite-6.6-rpms
+  - name: rhel-7-server-rpms
+  - name: rhel-server-rhscl-7-rpms
+  - name: rhel-7-server-satellite-maintenance-6-rpms
+  - name: rhel-7-server-ansible-2.8-rpms
+  
+satellite_yum_packages:
+  - satellite
+  - chrony
+  - sos
+  - puppet-foreman_scap_client
+  - scap-security-guide
+  - dracut-fips
+  - dracut-fips-aesni
+  - ipa-client
+
+satellite_req_dirs:
+  - mount_point: /var/lib/pulp
+    lv_name: var_lib_pulp
+    lv_size: 720g
+  - mount_point: /var/lib/mongodb
+    lv_name: var_lib_mongodb
+    lv_size: 50g
+  - mount_point: /var/lib/pgsql
+    lv_name: var_lib_pgsql
+    lv_size: 10g
+  - mount_point: /var/spool/squid
+    lv_name: var_spool_squid
+    lv_size: 10g

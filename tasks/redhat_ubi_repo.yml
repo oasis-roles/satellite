@@ -1,0 +1,19 @@
+---
+
+- name: redhat_ubi_repo | Check to see if Satellite is running
+  shell: foreman-maintain service status > /dev/null
+  register: check_satellite_installed
+  failed_when: check_satellite_installed.rc not in [127,1,0]
+
+
+- name: redhat_ubi_repo | Create Products
+  command: hammer product create --name ubi_product --description ubi_product --organization "{{ foreman_initial_organization }}"
+  register: cmd
+  failed_when: cmd.rc not in [65,0]
+
+- name: redhat_ubi_repo | Create Red Hat UBI repository
+  shell: hammer repository create --organization "{{ foreman_initial_organization }}" --content-type yum --download-policy "immediate" --name "{{ item.repo }}" --product "{{ item.name }}" --url "{{ item.url }}"
+  register: cmd
+  failed_when: cmd.rc not in [65,0]
+  with_items:
+    - "{{ ubi_rpm }}"

@@ -1,0 +1,34 @@
+---
+
+- name: manifest | Skip manifest steps if manifest is already uploaded
+  shell: hammer subscription list --organization "{{ foreman_initial_organization }}"| grep "{{ account_id }}"
+  register: manifest_installed
+  failed_when: manifest_installed.rc not in [1,0]
+
+- name:
+  block:
+
+  - name: manifest | Pull down manifest
+    get_url:
+      url: https://subscription.rhsm.redhat.com/subscription/consumers/{{ manifest_uuid }}/export
+      username: "{{ lookup('env', 'RHN_USER') }}"
+      password: "{{ lookup('env', 'RHN_PASSWORD') }}"
+      dest: /opt/satellite_manifest.zip
+      validate_certs: no
+    when: rhn_connect != 'disconnect'
+
+  - name: manifest | Copy manifest from local system to remote target
+    copy:
+      src: "{{ lookup('env', 'SATELLITE_MANIFEST') }}"
+      dest: /opt/satellite_manifest.zip
+      owner: root
+      group: root
+      mode: 0640
+    when: rhn_connect == 'disconnect'
+
+  - name: manifest | Upload the manifest file to satellite
+    shell: hammer subscription upload --organization "{{ foreman_initial_organization }}" --file "{{ satellite_manifest }}"
+    register: manifest_upload_output
+
+  when: manifest_installed.rc != 0
+

@@ -1,0 +1,36 @@
+---
+
+- name: 3rd_party_repo_create | Move gpg keys
+  copy:
+    src: "{{ item.gpg }}"
+    dest: /opt/{{ item.gpg }}
+    owner: root
+    group: root
+  with_items:
+    - "{{ thirdproduct }}"
+
+- name: 3rd_party_repo_create | Check to see if localhost is running satellite
+  shell: foreman-maintain service status > /dev/null
+  register: check_satellite_installed
+  failed_when: check_satellite_installed.rc not in [127,1,0]
+
+- name: 3rd_party_repo_create | Create the gpg keys
+  command: hammer gpg create --key /opt/"{{ item.gpg }}" --organization "{{ foreman_initial_organization }}" --name "{{ item.gpg }}"
+  register: cmd
+  failed_when: cmd.rc not in [65,0]
+  with_items:
+    - "{{ thirdproduct }}"
+
+- name: 3rd_party_repo_create | Create Products
+  command: hammer product create --gpg-key "{{ item.gpg }}" --name "{{ item.name }}" --description "{{ item.des }}" --organization "{{ foreman_initial_organization }}"
+  register: cmd
+  failed_when: cmd.rc not in [65,0]
+  with_items:
+    - "{{ thirdproduct }}"
+
+- name: 3rd_party_repo_create | Create third party repo
+  shell: hammer repository create --organization "{{ foreman_initial_organization }}" --content-type yum --download-policy "immediate" --gpg-key "{{ item.gpg }}" --name "{{ item.repo }}" --product "{{ item.name }}" --url "{{ item.url }}"
+  register: cmd
+  failed_when: cmd.rc not in [65,0]
+  with_items:
+    - "{{ thirdproduct }}"

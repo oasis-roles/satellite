@@ -1,0 +1,91 @@
+---
+# TASKS
+
+# TODO: Consider using the "katello" module. This requires pip and pip's nailgun.
+# https://docs.ansible.com/ansible/latest/modules/katello_module.html
+
+- name: organization_config | Check if the organization has already been created. If it exists, the organization id will be returned. ()WILL NEVER BE STATUS=CHANGED)
+  shell: >
+    hammer --output json organization info
+    --name "{{ org.name }}"
+  register: org_info_json
+  changed_when: false
+  failed_when: (org_info_json.rc != 0) and ("organization not found" not in org_info_json.stderr)
+
+# TODO: Consider breaking this block out into its own task file.
+- name: organization_config | Perform actions if the organization already exists
+  block:
+    - name: organization_config | Dynamically set the org_id.
+      set_fact:
+        org_id: "{{ org_info_json.stdout }}"
+
+    - name: organization_config | Set a flag to show whether or not the Description matches
+      set_fact:
+        org_description_matches: true
+      when: org.description == (((org_info_json.stdout | from_json)["Description"]) | string)
+
+    - name: organization_config | Update the Description if it doesn't match
+      command: >
+        hammer organization update
+        --name "{{ org.name }}"
+        --description "{{ org.description }}"
+      when: ((org_description_matches | default(false)) == false)
+  when: (org_info_json.rc == 0)
+
+- name: organization_config | Create the organization if it is not listed
+  block:
+    - name: organization_config | Create the organization using a hammer command if the organization has not been created
+      command: >
+        hammer organization create
+        --name "{{ org.name }}"
+        --label "{{ org.label }}"
+        --description "{{ org.description }}"
+      register: org_create_output
+      changed_when: ("Organization created" in org_create_output.stdout)
+
+    - name: organization_config | Get the organization id of the organization just created ()WILL NEVER BE STATUS=CHANGED)
+      shell: >
+        hammer --csv --no-headers organization info
+        --name "{{ org.name }}"
+        | gawk -F, '{print $1}'
+      register: new_org_id_output
+      changed_when: false
+
+    - name: organization_config | Dynamically set the org_id
+      set_fact:
+        org_id: "{{ new_org_id_output.stdout }}"
+  when: ("organization not found" in org_info_json.stderr)
+
+- name: organization_config | Ensure the Description of the organization is configured correctly
+  block:
+    - name: organization_config | Set a flag to show whether or not the Description matches
+      set_fact:
+        org_description_matches: true
+      when: org.description == (((org_info_json.stdout | from_json)["Description"]) | string)
+
+    - name: organization_config | Update the Description if it doesn't match.
+      command: >
+        hammer organization update
+        --name "{{ org.name }}"
+        --description "{{ org.description }}"
+      when: ((org_description_matches | default(false)) == false)
+  when: (org_info_json.rc == 0)
+
+# This is separated out as locations are not organization-specific.
+- name: organization_config | Include the tasks to create and associate the locations of an organization
+  include_tasks: location_config.yml
+  loop: "{{ org.locations }}"
+  loop_control:
+    loop_var: loc
+
+- name: organization_config | Include the tasks to configure content views
+  include_tasks: content_view_config.yml
+  loop: "{{ org.content_views }}"
+  loop_control:
+    loop_var: view
+
+- name: organization_config | Include the tasks to configure activation keys
+  include_tasks: activation_key_tasks/main.yml
+  loop: "{{ org.activation_keys }}"
+  loop_control:
+    loop_var: key

@@ -1,0 +1,8 @@
+---
+
+- name: Create host collections
+  shell: hammer host-collection create --name "{{ item.name }}" --organization "{{ foreman_initial_organization }}"
+  with_items:
+    - "{{ hc }}"
+  register: hc_output
+  failed_when: hc_output.rc not in [65,0]

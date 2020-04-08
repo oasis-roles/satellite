@@ -1,11 +1,6 @@
-- name: run satellite installer
-  command: satellite-installer --scenario
-           {{ ( satellite_scenario_location | basename | splitext )[0] }}
-           --dont-save-answers
-  become: true
-  register: installer_output
-  notify: output installer stdout
+---
+# handlers file for prefab-role
 
-- name: output installer stdout
-  debug:
-    var: installer_output
+- name: firewalld-reload
+  command: "/usr/bin/firewall-cmd --reload"
+...

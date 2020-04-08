@@ -1,0 +1,96 @@
+---
+- name: openscap_config | Create Puppet environment directory for OpenScap
+  file:
+    dest: "/etc/puppetlabs/code/environments/{{ hostgroup.name }}"
+    owner: apache
+    group: root
+    mode: 0755
+    state: directory
+
+- name: "openscap_config | Check if {{ hostgroup.name }} environment exists"
+  uri:
+    url: "https://{{ ansible_fqdn }}/api/environments/{{ hostgroup.name }}"
+    method: GET
+    user: "{{ satellite_admin_username }}"
+    password: "{{ satellite_admin_password }}"
+    headers:
+      Content-Type: "application/json"
+    validate_certs: no
+    return_content: yes
+    body_format: json
+    force_basic_auth: yes
+  register: result
+  failed_when: false
+
+- name: openscap_config | Create openscap puppet environment
+  shell: >
+    hammer environment create \
+      --organization "{{ lookup('env','FOREMAN_INITIAL_ORGANIZATION') }}" \
+      --location "{{ lookup('env','FOREMAN_INITIAL_LOCATION') }}" \
+      --name "{{ hostgroup.name }}"
+  register: puppet_env
+  changed_when: ("Environment created" in puppet_env.stdout)
+  failed_when: false
+  when: result.status != 200
+
+- name: openscap_config | Run foreman-rake to import scap content
+  shell: >
+    foreman-rake foreman_openscap:bulk_upload:default
+  register: openscap_rake
+  changed_when: ("Saved" in openscap_rake.stdout)
+
+- name: openscap_config | Import the openscap and stdlib puppet modules
+  command: >
+    hammer proxy import-classes \
+      --environment "{{ hostgroup.name }}" \
+      --name "{{ ansible_fqdn }}"
+  register: puppet_import
+  changed_when: ("Successfully updated environment" in puppet_import.stdout)
+
+- name: "openscap_config | Check if openscap-rhel{{ ansible_distribution_major_version }} hostgroup exists"
+  uri:
+    url: "https://{{ ansible_fqdn }}/api/hostgroups/{{ hostgroup.name }}"
+    method: GET
+    user: "{{ satellite_admin_username }}"
+    password: "{{ satellite_admin_password }}"
+    headers:
+      Content-Type: "application/json"
+    validate_certs: no
+    return_content: yes
+    body_format: json
+    force_basic_auth: true
+  register: result
+  failed_when: false
+
+- name: "openscap_config | Create {{ hostgroup.name }}"
+  shell: >
+    hammer hostgroup create \
+      --name "{{ hostgroup.name }}" \
+      --organization "{{ lookup('env','FOREMAN_INITIAL_ORGANIZATION') }}" \
+      --location "{{ lookup('env','FOREMAN_INITIAL_LOCATION') }}" \
+      --puppet-ca-proxy "{{ ansible_fqdn }}" \
+      --puppet-ca-proxy "{{ ansible_fqdn }}" \
+      --content-source "{{ ansible_fqdn }}" \
+      --environment "{{ hostgroup.name }}" \
+      --architecture "{{ hostgroup.architecture }}" \
+      --puppet-classes "{{ openscap_puppet_classes }}"
+  register: hg_create
+  changed_when: ("Hostgroup created" in hg_create.stdout)
+  when: result.status != 200
+  failed_when: false
+
+- name: openscap_config | Create openscap audit policy
+  shell: >
+    hammer policy create \
+      --name "default_openscap_rhel{{ ansible_distribution_major_version }}" \
+      --hostgroups "{{ hostgroup.name }}" \
+      --organization "{{ hostgroup.organization }}" \
+      --location "{{ hostgroup.location }}" \
+      --scap-content "Red Hat rhel{{ ansible_distribution_major_version }} default content" \
+      --scap-content-profile-id "{{ hostgroup.scap_profile_id }}" \
+      --period "{{ hostgroup.scap_scan_period }}" \
+      --weekday "{{ hostgroup.scap_scan_day }}" \
+      --deploy-by "puppet"
+  when: hg_create.changed
+
+...

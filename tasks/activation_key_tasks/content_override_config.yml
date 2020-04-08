@@ -1,0 +1,27 @@
+---
+# TASKS
+
+- name: activation_key_tasks | content_override_config | Set a flag to determine whether or not the product content is already overriden (WILL NEVER BE STATUS=CHANGED)
+  shell: >
+    hammer --no-headers --csv activation-key product-content
+    --organization "{{ org.name }}"
+    --name "{{ key.name }}"
+    | grep "{{ key_content_override.label }}"
+    | gawk -F, '{print $8}'
+    | grep "enabled:{% if key_content_override.override %}1{% else %}0{% endif %}"
+  register: product_content_output
+  changed_when: false
+  failed_when: (product_content_output.rc !=0) and (product_content_output.rc != 1)
+
+- name: activation_key_tasks | content_override_config | Override the current product content to the correct state
+  command: >
+    hammer activation-key content-override
+    --organization "{{ org.name }}"
+    --name "{{ key.name }}"
+    --content-label "{{ key_content_override.label }}"
+    --value {% if key_content_override.override %}1{% else %}0{% endif %}
+  register: content_override_output
+  changed_when: ("Updated content override" in content_override_output.stdout)
+  when: (product_content_output.rc == 1)
+
+
