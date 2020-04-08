@@ -2,7 +2,7 @@ Satellite
 =========
 
 Satellite role is a ansible role to install and configure Red Hat Satellite 6.6
-This Role does not use the Ansible Foreman modules
+**This Role does not use the Ansible Foreman modules**
 
 Requirements
 ------------
