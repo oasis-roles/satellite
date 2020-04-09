@@ -36,7 +36,7 @@ Role Variables
    - [To Create an activation key on access.redhat.com](https://access.redhat.com/articles/1378093)
 3. `RHN_ORG`: Orgization ID from access.redhat.com
    - [How to look up organization id on Red Hat's Customer Portal](https://access.redhat.com/articles/3047431)
-4. `RHN_CONNECT={connected,disconnect, or master}`: Used to set the method of the satellite installation
+4. `RHN_CONNECT: {connected,disconnect, or master}`: Used to set the method of the satellite installation
    - connected option is system is register to Red Hat's CDN and has access to the internet
    - disconnect optinon is when the system does not have access to the internet
    - master option is the same has connected but exports the rpm content for a disconnected satellite
@@ -50,14 +50,10 @@ Role Variables
 
 #### Default Variables
 
-1. sync_plans_name is the name of the sync plan
-   - **sync_plans_name:** 'Nightly_Midnight_Sync'
-2. sync_plans_interval is how often you would like to rpm repositories to be synced
-   - **sync_plans_interval:** daily
-3. sync_plans_time is when you want the rpm repositories to be synced
-   - **sync_plans_time:** '2019/03/01 08:00:00'
-4. sync_plan_enabled is set for the sync plan to be enabled or disabled
-   - **sync_plan_enabled:** true
+1. `sync_plans_name`: Name of the sync plan
+2. `sync_plans_interval`: How often you would like to rpm repositories to be synced
+3. `sync_plans_time: '2019/03/01 08:00:00'`: The time you want the rpm repositories to be synced
+4. `sync_plan_enabled`: Enable(true) or disable(false) sync plan
 
 Dependencies
 ------------
