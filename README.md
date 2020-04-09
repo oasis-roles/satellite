@@ -31,32 +31,22 @@ Role Variables
 --------------
 #### Enviroment Variables
 
-1. SAT_ACCOUNT_ID is your Red Hat Account Number 
-   - **SAT_ACCOUNT_ID**=*{Red Hat Account Number}*
-2. Activation key is from access.redhat.com 
+1. `SAT_ACCOUNT_ID`: Your Red Hat Account Number 
+2. `RHN_AK`: Activation key is from access.redhat.com 
    - [To Create an activation key on access.redhat.com](https://access.redhat.com/articles/1378093)
-   - **RHN_AK**=*{Activation key that was created on access.redhat.com}*
-3. RHN_ORG is from access.redhat.com
+3. `RHN_ORG`: Orgization ID from access.redhat.com
    - [How to look up organization id on Red Hat's Customer Portal](https://access.redhat.com/articles/3047431)
-   - **RHN_ORG**=*{Activation Keys for Organization ID number}*
-4. RHN_CONNECT variable is used to set the method of the satellite installation
-   - **RHN_CONNECT**=*{connected,disconnect, or master}*
-     - connected option is system is register to Red Hat's CDN and has access to the internet
-     - disconnect optinon is when the system does not have access to the internet
-     - master option is the same has connected but exports the rpm content for a disconnected satellite
-5. CONTENT_SOURCE is the path on where the offline rpm repository is stored
-   - **CONTENT_SOURCE**=*{FQDN}*
-6. FOREMAN_USER is to set the initial admin user for the satellite
-   - **FOREMAN_USER**=*{admin}*
-7. FOREMAN_PASSWORD is set for the initial admin user password
-   - **FOREMAN_PASSWORD**=*{changeme}*
-8. FOREMAN_INITIAL_ORGANIZATION is set for initial Organization
-   - **FOREMAN_INITIAL_ORGANIZATION**=*{Example}*
-9. FOREMAN_INITIAL_LOCATION is set for initial location
-   - **FOREMAN_INITIAL_LOCATION**=*{San Antonio}*
-10. MANIFEST_UUID is the manifest uuid that is created on access.redhat.com
+4. `RHN_CONNECT={connected,disconnect, or master}`: Used to set the method of the satellite installation
+   - connected option is system is register to Red Hat's CDN and has access to the internet
+   - disconnect optinon is when the system does not have access to the internet
+   - master option is the same has connected but exports the rpm content for a disconnected satellite
+5. `CONTENT_SOURCE`: The path on where the offline rpm repository is stored
+6. `FOREMAN_USER`: Initial admin user
+7. `FOREMAN_PASSWORD`: Initial admin user password
+8. `FOREMAN_INITIAL_ORGANIZATION`: Set initial organization
+9. `FOREMAN_INITIAL_LOCATION`: Set initial location
+10. `MANIFEST_UUID`: Manifest uuid that is created on access.redhat.com
     - [Manifest FAQ](https://access.redhat.com/articles/229083)
-    - **MANIFEST_UUID**=*{CHANGEME-F4K3-UU1D-9h0i-1j2k3l4m5n60}* 
 
 #### Default Variables
 
