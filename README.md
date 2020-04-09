@@ -18,14 +18,15 @@ Requirements
 - A system umask of 0022
 - Full forward and reverse DNS resolution using a fully-qualified domain name
 
-Information System requiments is found in the links below
-- [Connected Satellite](https://access.redhat.com/documentation/en-us/red_hat_satellite/6.6/html/installing_satellite_server_from_a_connected_network/index)   
-- [Disconnected Satellite](https://access.redhat.com/documentation/en-us/red_hat_satellite/6.6/html/installing_satellite_server_from_a_disconnected_network/index) 
-
 #### Storage Requirements
 - 2 Storage devices
 - 80 Gib Storage devices for OS
 - Minimum of 720 Gib storage device for Satellite (Connected/Disconnected), maximum of 900 Gib
+
+Information System requiments is found in the links below
+- [Connected Satellite](https://access.redhat.com/documentation/en-us/red_hat_satellite/6.6/html/installing_satellite_server_from_a_connected_network/index)   
+- [Disconnected Satellite](https://access.redhat.com/documentation/en-us/red_hat_satellite/6.6/html/installing_satellite_server_from_a_disconnected_network/index) 
+
 
 Role Variables
 --------------
