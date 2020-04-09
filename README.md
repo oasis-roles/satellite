@@ -1,12 +1,13 @@
 Satellite
 =========
 
-Satellite role is a ansible role to install and configure Red Hat Satellite 6.6
- **This Role does not use the Ansible Foreman modules**
+This ansible role is used to install and configure Red Hat Satellite 6.6
+
+**This Role does not use the Ansible Foreman modules**
 
 Requirements
 ------------
-System Requirements
+#### System Requirement
 - x86_64 architecture
 - The latest version of Red Hat Enterprise Linux 7 Server
 - 4-core 2.0 GHz CPU at a minimum
@@ -21,16 +22,15 @@ Information System requiments is found in the links below
 - [Connected Satellite](https://access.redhat.com/documentation/en-us/red_hat_satellite/6.6/html/installing_satellite_server_from_a_connected_network/index)   
 - [Disconnected Satellite](https://access.redhat.com/documentation/en-us/red_hat_satellite/6.6/html/installing_satellite_server_from_a_disconnected_network/index) 
 
-Storage Requirements
+#### Storage Requirements
 - 2 Storage devices
 - 80 Gib Storage devices for OS
 - Minimum of 720 Gib storage device for Satellite (Connected/Disconnected), maximum of 900 Gib
 
-***Role Variables***
+Role Variables
 --------------
---------------
-Enviroment Variables
---------------
+#### Enviroment Variables
+
 1. SAT_ACCOUNT_ID is your Red Hat Account Number 
    - **SAT_ACCOUNT_ID**=*{Red Hat Account Number}*
 2. Activation key is from access.redhat.com 
@@ -58,8 +58,8 @@ Enviroment Variables
     - [Manifest FAQ](https://access.redhat.com/articles/229083)
     - **MANIFEST_UUID**=*{CHANGEME-F4K3-UU1D-9h0i-1j2k3l4m5n60}* 
 
-Default Variables
---------------
+#### Default Variables
+
 1. sync_plans_name is the name of the sync plan
    - **sync_plans_name:** 'Nightly_Midnight_Sync'
 2. sync_plans_interval is how often you would like to rpm repositories to be synced
@@ -71,8 +71,9 @@ Default Variables
 
 Dependencies
 ------------
-Create satellite manifest from access.redhat.com before hand, currently stored on the gitlab runner, but will be stored on an s3 bucket.
- The manifest must be updated manually until we get the api for access working.
+Create satellite manifest from access.redhat.com before hand. If the satellite connected to the internet the role will pull down the manifest  
+from access.redhat.com
+
 [Manifest FAQ](https://access.redhat.com/articles/229083)
 
 Example Playbook
