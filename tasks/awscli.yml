@@ -1,0 +1,37 @@
+---
+- name: Download of AWS CLI version 2
+  get_url:
+    url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /opt/awscliv2.zip
+  when: rhn_connect != 'disconnect'
+
+
+- name: unzip of AWS CLI version 2
+  unarchive:
+    src: /opt/awscliv2.zip
+    dest: /opt
+    remote_src: yes
+
+- name: installing AWS CLI
+  shell: /opt/aws/install --update
+
+- name: Create .aws directory
+  file:
+    path: /root/.aws
+    state: directory
+
+- name: Setting up EC2_REGION
+  template:
+    src: config.j2
+    dest: /root/.aws/config
+    mode: 0600
+    owner: root
+    group: root
+
+- name: Setting up EC2
+  template:
+    src: credentials.j2
+    dest: /root/.aws/credentials
+    mode: 0600
+    owner: root
+    group: root

@@ -1,0 +1,58 @@
+---
+- name: rhsm_subscribe | removing rh-amazon-rhui-client
+  package:
+    name: rh-amazon-rhui-client
+    state: absent
+    
+- name: rhsm_subscribe | Check if amazon-id.conf exists
+  stat:
+    path: /etc/yum/pluginconf.d/amazon-id.conf
+  register: amazon_id_conf
+
+- name: rhsm_subscribe | remove amazon-id.conf if it exists
+  file:
+    path: /etc/yum/pluginconf.d/amazon-id.conf
+    state: absent
+  when: amazon_id_conf.stat.exists == true
+  
+#- name: rhsm_subscribe | Disable amazon-id.conf if it exists
+#  lineinfile:
+#    path: /etc/yum/pluginconf.d/amazon-id.conf
+#    regexp: '^enabled=1'
+#    line: enabled=0
+#    backrefs: yes
+#  when: amazon_id_conf.stat.exists == true
+
+- name: rhsm_subscribe | Get a list of all the files in /etc/yum.repos.d
+  find:
+    paths: /etc/yum.repos.d
+    patterns: "*.repo"
+  register: repo_files
+
+- name: rhsm_subscribe | Remove any file in /etc/yum.repos.d that isn't redhat.repo
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  when: item.path != "/etc/yum.repos.d/redhat.repo"
+  with_items: "{{ repo_files.files }}"
+
+- name: rhsm_subscribe | Register to RHN using an activation key
+  redhat_subscription:
+    state: present
+    activationkey: "{{ rhn_activation_key }}"
+    org_id: "{{ rhn_org }}"
+    pool: '^(Red Hat Satellite Infrastructure Subscription)$'
+    force_register: yes
+
+- name: rhsm_subscribe | Disable all Red Hat repositories
+  rhsm_repository:
+    name: '*'
+    state: disabled
+
+- name: rhsm_subscribe | Enable required repositories for Satellite
+  rhsm_repository:
+    name: "{{ item.name }}"
+    state: enabled
+  with_items:
+    - "{{ satellite_repos }}"
+

@@ -1,0 +1,29 @@
+---
+# TASKS
+
+- name: satellite_install | Check if Satellite is already installed using foreman-maintain service status
+  shell: foreman-maintain service status > /dev/null
+  register: check_satellite_installed
+  failed_when: check_satellite_installed.rc not in [127,1,0]
+
+- name:
+  block:
+  - name: satellite_install | Yum install the latest packages required for satellite
+    package:
+      name: "{{ satellite_yum_packages }}"
+      state: latest
+
+  - name: satellite_install | Install Satellite
+    shell: "satellite-installer --scenario satellite --foreman-initial-admin-password {{ satellite_admin_password }} --enable-foreman-proxy-plugin-openscap --foreman-initial-organization {{ foreman_initial_organization }} --foreman-initial-location {{ foreman_initial_location }} --foreman-proxy-dhcp false --foreman-proxy-dns false --foreman-proxy-tftp false"
+
+  - name: satellite_install | Move performance tuning YAML
+    copy:
+      src: files/custom-hiera.yaml
+      dest: /etc/foreman-installer/custom-hiera.yaml
+      owner: root
+      group: root
+
+  - name: satellite_install | Activate the performance tuning
+    shell: satellite-installer
+
+  when: check_satellite_installed.rc == 127

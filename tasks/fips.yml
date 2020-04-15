@@ -1,0 +1,21 @@
+---
+# TASKS
+- name: fips | Check if FIPS is enabled
+  shell: sysctl crypto.fips_enabled
+  register: fips_enabled
+
+- name:
+  block:
+  - name: fips | Enable FIPS | Back initrd
+    shell: "mv -v /boot/initramfs-{{ ansible_kernel }}.img /boot/initramfs-{{ ansible_kernel }}.bak"
+
+  - name: fips | Run dracut to rebuild initramfs
+    shell: dracut --force
+
+  - name:  fips | Edit kernel command-line to include the fips=1 argument
+    shell: grubby --update-kernel=/boot/vmlinuz-{{ ansible_kernel }} --args=fips=1
+
+  - name: fips | Reboot to activate FIPS
+    reboot:
+  when: fips_enabled.stdout != "crypto.fips_enabled = 1"
+

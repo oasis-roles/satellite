@@ -1,0 +1,16 @@
+---
+# TASKS
+
+- name: sync_plan | Create a sync plan
+  shell: hammer sync-plan create --name '{{ sync_plans_name }}' --organization "{{ foreman_initial_organization }}" --enabled {{ sync_plan_enabled }} --sync-date '{{ sync_plans_time }}' --interval {{ sync_plans_interval }}
+  register: is_sync_plan
+  failed_when: is_sync_plan.rc not in [65,0]
+
+- name: sync_plan | Add Products to sync plan
+  shell: hammer product list --organization-id 1 | grep -v -e "| 0" -e "ID" -e "--" | awk -F "|" '{print $1}'
+  register: product
+
+- shell: hammer product set-sync-plan --id {{ item }} --organization "{{ foreman_initial_organization }}" --sync-plan '{{ sync_plans_name }}'
+  with_items:
+    - "{{ product.stdout_lines }} "
+

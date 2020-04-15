@@ -1,28 +1,65 @@
-- name: ensure that satellite_admin_password is defined
-  fail:
-    msg: You must provide an admin password for satellite
-  when: satellite_admin_password is not defined
+---
+# tasks file for satellite role
 
-- name: install satellite
-  package:
-    name: "{{ satellite_packages }}"
-    state: present
-  become: true
+- name: Rhsm-subscribe
+  import_tasks: rhsm_subscribe.yml
+  when: rhn_connect != 'disconnect'
 
-- name: upload answers file
-  template:
-    src: satellite-answers.yaml
-    dest: "{{ satellite_answers_file_destination }}"
-    owner: root
-    group: root
-    mode: 0600
-  become: true
-  notify: run satellite installer
+- name: Build local repo
+  import_tasks: create_local_repo.yml
+  when: rhn_connect == 'disconnect'
 
-- name: edit scenario file
-  lineinfile:
-    dest: "{{ satellite_scenario_location }}"
-    line: ":answer_file: {{ satellite_answers_file_destination }}"
-    regexp: ":answer_file: .*"
-  become: true
-  notify: run satellite installer
+- name: storage-hostgroup_config
+  import_tasks: storage_config.yml
+
+- name: patch the system
+  import_tasks: patch.yml
+
+- name: Enable FIPS
+  import_tasks: fips.yml
+
+- name: satellite-install
+  import_tasks: satellite_install.yml
+
+- name: Configuring Satellite 6 server
+  import_tasks: satellite_settings.yml
+
+- name: Upload Manifest
+  import_tasks: manifest.yml
+
+- name: Enable repos
+  import_tasks: repo_management_enablerepos.yml
+
+- name: Enable third party repos
+  import_tasks: 3rd_party_repo_create.yml
+
+- name: Enable Red Hat UBI repos
+  import_tasks: redhat_ubi_repo.yml
+
+- name: Sync repos
+  import_tasks: repo_sync.yml
+
+- name: Configure host collections
+  import_tasks: host_collections.yml
+
+- name: Create content views
+  import_tasks: create_content_views.yml
+
+- name: Create activation activation keys
+  import_tasks: create_activation_keys.yml
+
+- name: Sync Plan
+  import_tasks: sync_plan.yml
+
+- name: Create infrastructure necessary for openscap
+  include_tasks: openscap_config.yml
+  loop: "{{ hostgroup_config }}"
+  loop_control:
+     loop_var: hostgroup
+
+- name: installing awscliv2
+  import_tasks: awscli.yml
+
+- name: Add Master Satellite Option
+  import_tasks: master_settings.yml
+  when: rhn_connect == 'master'

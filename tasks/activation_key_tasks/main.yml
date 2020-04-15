@@ -1,0 +1,145 @@
+---
+# TASKS
+
+- name: activation_key_tasks | Check if the activation key has already been created (WILL NEVER BE STATUS=CHANGED)
+  shell: >
+    hammer --output json activation-key info
+    --organization "{{ org.name }}"
+    --name "{{ key.name }}"
+  register: key_info_json
+  changed_when: false
+  failed_when: (key_info_json.rc != 0) and ("activation_key not found" not in key_info_json.stderr)
+
+- block:
+    - name: activation_key_tasks | Create a new key if it has not already been created
+      shell: >
+        hammer activation-key create
+        --organization "{{ org.name }}"
+        --name "{{ key.name }}"
+        --description "{{ key.description }}"
+        {% if key.max_hosts is defined and key.max_hosts > 0 %}--max-hosts {{ key.max_hosts }}{% else %}--unlimited-hosts{% endif %}
+        --lifecycle-environment "{{ key.lifecycle_environment }}"
+        --content-view "{{ key.content_view }}"
+      register: key_created_output
+      changed_when: ("Activation key created" in key_created_output.stdout)
+
+    - name: activation_key_tasks | Fetch information about the newly created key (WILL NEVER BE STATUS=CHANGED)
+      shell: >
+        hammer --output json activation-key info
+        --organization "{{ org.name }}"
+        --name "{{ key.name }}"
+      register: key_created_info_json
+      changed_when: false
+
+    - set_fact:
+        key_info_json: "{{ key_created_info_json }}"
+  when: ("activation_key not found" in key_info_json.stderr)
+
+- name: activation_key_tasks | Ensure the Description of the activation key is configured correctly
+  block:
+    - name: activation_key_tasks | Set a flag to show whether or not the Description matches.
+      set_fact:
+        key_description_matches: true
+      when: key.description == (((key_info_json.stdout | from_json)["Description"]) | string)
+
+    - name: activation_key_tasks | Update the Description if it doesn't match
+      command: >
+        hammer activation-key update
+        --organization "{{ org.name }}"
+        --name "{{ key.name }}"
+        --description "{{ key.description }}"
+      when: ((key_description_matches | default(false)) == false)
+
+- name: activation_key_tasks | Ensure the Max Hosts of the activation key is configured correctly
+  block:
+    - name: activation_key_tasks | Set a flag to show whether or not the Max Hosts matches
+      set_fact:
+        key_max_hosts_matches: true
+      when: ((key.max_hosts == 0) and ("Unlimited" in (((key_info_json.stdout | from_json)["Host Limit"]) | string))) or
+            ((key.max_hosts > 0) and ((key.max_hosts | string) == (((key_info_json.stdout | from_json)["Host Limit"]) | string)))
+
+    - name: activation_key_tasks | Update Max Hosts if it doesn't match
+      command: >
+        hammer activation-key update
+        --organization "{{ org.name }}"
+        --name "{{ key.name }}"
+        {% if key.max_hosts is defined and key.max_hosts > 0 %}--max-hosts {{ key.max_hosts }}{% else %}--unlimited-hosts{% endif %}
+      when: ((key_max_hosts_matches | default(false)) == false)
+
+- name: activation_key_tasks | Ensure the Auto Attach option of the activation key is configured correctly
+  block:
+    - name: activation_key_tasks | Set a flag to show whether or not the Auto Attach option matche
+      set_fact:
+        key_auto_attach_matches: true
+      when: (key.auto_attach | bool) == (((key_info_json.stdout | from_json)["Auto Attach"]) | bool)
+
+    - name: activation_key_tasks | Update the Auto Attach option if it doesn't match
+      command: >
+        hammer activation-key update
+        --organization "{{ org.name }}"
+        --name "{{ key.name }}"
+        --auto-attach "{{ key.auto_attach | bool }}"
+      when: ((key_auto_attach_matches | default(false)) == false)
+
+- name: activation_key_tasks | Ensure the Release Version of the activation key is configured correctly
+  block:
+    - name: activation_key_tasks | Set a flag to show whether or not the Release Version matches
+      set_fact:
+        key_release_version_matches: true
+      when: key.release_version == (((key_info_json.stdout | from_json)["Release Version"]) | string)
+
+    - name: activation_key_tasks | Update the Release Version if it doesn't match
+      command: >
+        hammer activation-key update
+        --organization "{{ org.name }}"
+        --name "{{ key.name }}"
+        --release-version "{{ key.release_version }}"
+      when: ((key_release_version_matches | default(false)) == false)
+
+- name: activation_key_tasks | Ensure the Lifecycle Environment of the activation key is configured correctly
+  block:
+    - name: activation_key_tasks | Set a flag to show whether or not the Lifecycle Environment matches
+      set_fact:
+        key_lifecycle_environment_matches: true
+      when: key.lifecycle_environment == (((key_info_json.stdout | from_json)["Lifecycle Environment"]) | string)
+
+    - name: activation_key_tasks | Update the Lifecycle Environment if it doesn't match
+      command: >
+        hammer activation-key update
+        --organization "{{ org.name }}"
+        --name "{{ key.name }}"
+        --lifecycle-environment "{{ key.lifecycle_environment }}"
+      when: ((key_lifecycle_environment_matches | default(false)) == false)
+
+- name: activation_key_tasks | Ensure the Content View of the activation key is configured correctly
+  block:
+    - name: activation_key_tasks | Set a flag to show whether or not the Content View matches
+      set_fact:
+        key_content_view_matches: true
+      when: key.content_view == (((key_info_json.stdout | from_json)["Content View"]) | string)
+
+    - name: activation_key_tasks | Update the Content View if it doesn't match
+      command: >
+        hammer activation-key update
+        --organization "{{ org.name }}"
+        --name "{{ key.name }}"
+        --content-view "{{ key.content_view }}"
+      when: ((key_content_view_matches | default(false)) == false)
+
+- name: activation_key_tasks | Ensure that the Host Collections for the activation key are configured correctly
+  include_tasks: activation_key_tasks/host_collection_config.yml
+  loop: "{{ key.host_collections | unique }}"
+  loop_control:
+    loop_var: key_host_collection
+
+- name: activation_key_tasks | Ensure that the Subscriptions for the activation key are configured correctly
+  include_tasks: activation_key_tasks/subscription_config.yml
+  loop: "{{ key.subscriptions | unique }}"
+  loop_control:
+    loop_var: key_subscription
+
+- name: activation_key_tasks | Include tasks to override content.
+  include_tasks: content_override_config.yml
+  loop: "{{ key.content_overrides | unique }}"
+  loop_control:
+    loop_var: key_content_override

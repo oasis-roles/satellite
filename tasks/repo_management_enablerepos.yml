@@ -1,0 +1,41 @@
+---
+- name: repo_management_enablerepos | Check to see if localhost is running satellite
+  shell: command -v hammer >/dev/null 2>&1
+  register: is_hammer_exist
+
+- name: repo_management_enablerepos | Ensure that pulp directory is owned by apache user
+  file:
+    path: /var/lib/pulp
+    owner: apache
+    group: apache
+    mode: '0755'
+
+- name: repo_management_enablerepos | Change the CDN URL to Master satellite
+  shell: hammer organization update --redhat-repository-url "{{ content_source }}" --organization "{{ foreman_initial_organization }}" --id 1
+  when:  rhn_connect == 'disconnect'
+
+- name: search for the proper name convention of Software Collections
+  shell: hammer product list --organization-id 1 --search "Red Hat Software Collections" | grep -v -e "Beta" -e "--" -e "NAME" | awk -F "|" '{print $1}' | tr -d ' '
+  register: product_id
+
+- set_fact:
+   rhscl: "{{ product_id.stdout_lines }}"
+
+- name: repo_management_enablerepos | Enable repos for Red Hat Software Collections
+  shell: "hammer repository-set enable --basearch {{ server_basearch }} --releasever {{ server_releasever }} --product-id '{{ rhscl | first }}' --name '{{ item }}' --organization {{ foreman_initial_organization }}"
+  register: cmd
+  failed_when: cmd.rc not in [70,0]
+  loop:
+    - "{{ RHSCL_name }}"
+
+- name: repo_management_enablerepos | Enable repos that do not require release version
+  command: hammer repository-set enable --basearch "{{ server_basearch }}" --product "{{ item.name }}"  --name "{{ item.repo }}" --organization "{{ foreman_initial_organization }}"
+  register: cmd
+  failed_when: cmd.rc not in [70,0]
+  loop: "{{ products_worv }}"
+
+- name: repo_management_enablerepos | Enable repos that require base search and release version
+  command: hammer repository-set enable --basearch "{{ server_basearch }}" --releasever "{{ item.version }}" --product "{{ item.name }}" --name "{{ item.repo }}" --organization "{{ foreman_initial_organization }}"
+  register: cmd
+  failed_when: cmd.rc not in [70,0]
+  loop: "{{ products }}"

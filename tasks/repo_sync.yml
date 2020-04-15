@@ -1,0 +1,35 @@
+---
+# TASKS
+
+- name: repo_sync | Get product ID's
+  shell: hammer product list  --organization "{{ foreman_initial_organization }}"  | grep -v -e "| 0" -e "ID" -e "--" | awk -F "|" '{print $1}'
+  register: product
+
+- name: repo_sync | Ensure that pulp directory is owned by apache
+  file:
+    path: /var/lib/pulp
+    owner: apache
+    group: apache
+    mode: '0755'
+
+- name: repo_sync | Sync repos asynchronously
+  shell: hammer product synchronize --id "{{ item }}"
+  retries: 3
+  delay: 3
+  register: result
+  until: result.rc == 0
+  with_items:
+    - "{{ product.stdout_lines }}"
+
+- name: repo_sync | Waiting for Syncs to start
+  pause:
+    minutes: 5
+
+- name: repo_sync | getting list of enabled repos
+  shell: hammer repository list | grep -v -e "--" -e "ID" | awk '{print $1}'
+  register: repo
+
+- name: repo_sync | checking if repos synced with a success
+  shell: hammer repository info --id {{ item }} | grep -i success
+  with_items:
+    - "{{ repo.stdout_lines }}"

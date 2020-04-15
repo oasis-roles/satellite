@@ -1,27 +1,200 @@
-satellite_admin_username: admin
-# Since this is a password, for security reasons we demand that the
-# user provide this as input
-#satellite_admin_password: CHANGEME
-satellite_organization: Default Organization
-satellite_location: Default Location
-satellite_enable_ssl: true
-satellite_ssl_port: 443
-satellite_http_port: 80
-satellite_proxy_http_port: 8000
-satellite_proxy_http: true
-satellite_proxy_ssl_port: 9090
-satellite_proxy_ssl: true
-satellite_proxy_dhcp: false
-satellite_proxy_dhcp_managed: false
-satellite_proxy_dns: false
-satellite_proxy_dns_managed: false
-satellite_puppet_port: 8140
-satellite_answers_file_destination: >-
-  /etc/foreman-installer/scenarios.d/satellite-answers.yaml
-satellite_compute_ec2: false
-satellite_compute_gce: false
-satellite_compute_libvirt: false
-satellite_compute_openstack: false
-satellite_compute_ovirt: false
-satellite_compute_rackspace: false
-satellite_compute_vmware: false
+---
+# defaults file for prefab-role
+account_id: "{{ lookup('env','SAT_ACCOUNT_ID') }}"
+rhn_activation_key: "{{ lookup('env','RHN_AK') }}"
+rhn_org: "{{ lookup('env','RHN_ORG')}}"
+rhn_connect: "{{ lookup('env','RHN_CONNECT') }}"
+content_source: "{{ lookup('env','CONTENT_SOURCE') }}"
+satellite_admin_username: "{{ lookup('env','FOREMAN_USER') }}"
+satellite_admin_password: "{{ lookup('env','FOREMAN_PASSWORD') }}"
+foreman_initial_organization: "{{ lookup('env','FOREMAN_INITIAL_ORGANIZATION') }}"
+foreman_initial_location: "{{ lookup('env','FOREMAN_INITIAL_LOCATION') }}"
+manifest_uuid: "{{ lookup('env', 'MANIFEST_UUID') }}"
+sync_plans_name: 'Nightly_Midnight_Sync'
+sync_plans_interval: daily
+sync_plans_time: '2019/03/01 08:00:00'
+sync_plan_enabled: true
+
+# Optional vars if this is a master satellite
+artifactory_accesstoken: "{{ lookup('env', 'ARTIFACTORY_ACCESSTOKEN') }}"
+artifactory_server: "{{ lookup('env', 'ARTIFACTORY_SERVER') }}"
+artifactory_upload_folder: LevelUPIncoming
+dod_certs_url: https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_v5-8_wcf.zip
+jfrog_cli_url: "https://api.bintray.com/content/jfrog/jfrog-cli-go/$latest/jfrog-cli-linux-386/jfrog?bt_package=jfrog-cli-linux-386"
+
+
+thirdproduct:
+ - name: EPEL
+   gpg: rpm_gpg_key_epel_7
+   url: "https://dl.fedoraproject.org/pub/epel/7/x86_64/"
+   des: "Extra Packages for Enterprise Linux"
+   repo: epel-7-x86_64
+ - name: Gitlab
+   gpg: rpm_gpg_key_gitlab
+   url: "https://packages.gitlab.com/runner/gitlab-runner/el/7/x86_64"
+   des: Gitlab
+   repo: gitlab-7-x86_64
+ - name: "Treasure_Agent"
+   gpg: GPG-KEY-td-agent
+   url: "http://packages.treasuredata.com/3/redhat/7/x86_64"
+   des: "EFK stack"
+   repo: td-agent-7-x86_64
+
+ubi_rpm:
+  - name: ubi_product
+    url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi/server/7/7Server/x86_64/os
+    repo: ubi-7
+  - name: ubi_product
+    url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi/atomic/7/7Server/x86_64/os
+    repo: ubi-7-rhah
+  - name: ubi_product
+    url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi/server/7/7Server/x86_64/extras/os
+    repo: ubi-7-server-extras-rpms
+  - name: ubi_product
+    url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi/server/7/7Server/x86_64/optional/os
+    repo: ubi-7-server-optional-rpms
+  - name: ubi_product
+    url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi/server/7/7Server/x86_64/rhscl/1/os
+    repo: ubi-server-rhscl-7-rpms
+  - name: ubi_product
+    url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os
+    repo: ubi-8-baseos
+  - name: ubi_product
+    url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/appstream/os
+    repo: ubi-8-appstream
+  - name: ubi_product
+    url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/codeready-builder/os
+    repo: ubi-8-codeready
+
+content_views:
+  - name: third_party-cv
+  - name: rhel7-cv
+  - name: ocp-cv
+  - name: ubi-cv
+  - name: rhel8-cv
+
+composite_content_view:
+  - name: generic_view
+    cv1: third_party-cv
+    cv2: rhel7-cv
+  - name: ocp_content_view
+    cv1: rhel7-cv
+    cv2: ocp-cv
+  - name: ocp_content_view
+    cv1: rhel8-cv
+    cv2: third_party-cv
+
+activation_keys:
+  - name: generic_key
+    lifecycle_environment: 'Library'
+    content_view: 'generic_view'
+    host_collections: generic_hosts
+    subscriptions: "Red Hat Enterprise Linux Server with Smart Management"
+    label1: rhel-7-server-ansible-2.6-rpms
+    label2: rhel-server-rhscl-7-rpms
+    label3: rhel-7-server-extras-rpms
+    label4: rhel-7-server-optional-rpms
+    label5: rhel-7-server-satellite-tools-6.6-rpms
+  - name: ocp_masters
+    lifecycle_environment: 'Library'
+    content_view: 'ocp_content_view'
+    host_collections: ocp_hosts
+    subscriptions: "Red Hat OpenShift Container Platform Broker/Master"
+    label1: rhel-7-server-ansible-2.6-rpms
+    label2: rhel-server-rhscl-7-rpms
+    label3: rhel-7-server-extras-rpms
+    label4: rhel-7-server-ose-3.11-rpms
+    label5: rhel-7-server-satellite-tools-6.6-rpms
+  - name: ocp_apps
+    lifecycle_environment: 'Library'
+    content_view: 'ocp_content_view'
+    host_collections: ocp_hosts
+    subscriptions: "Red Hat OpenShift Container Platform with Runtimes"
+    label1: rhel-7-server-ansible-2.6-rpms
+    label2: rhel-server-rhscl-7-rpms
+    label3: rhel-7-server-extras-rpms
+    label4: rhel-7-server-ose-3.11-rpms
+    label5: rhel-7-server-satellite-tools-6.6-rpms
+
+
+
+
+
+# https://access.redhat.com/documentation/en-us/red_hat_satellite/6.4/pdf/installing_satellite_server_from_a_connected_network/Red_Hat_Satellite-6.4-Installing_Satellite_Server_from_a_Connected_Network-en-US.pdf
+# See Section 2.1.3 - Table 1.1
+
+# Which Products and Repos to enable that need base search and release version
+products:
+  - name: "Red Hat Enterprise Linux Server"
+    repo: "Red Hat Enterprise Linux 7 Server (RPMs)"
+    version: "7Server"
+  - name: "Red Hat Enterprise Linux Server"
+    repo: "Red Hat Enterprise Linux 7 Server - Optional (RPMs)"
+    version: "7Server"
+  - name: "Red Hat Enterprise Linux for x86_64"
+    repo: "Red Hat Enterprise Linux 8 for x86_64 - AppStream (RPMs)"
+    version: "8"
+  - name: "Red Hat Enterprise Linux for x86_64"
+    repo: "Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)"
+    version: "8"
+  - name: "Red Hat Enterprise Linux for x86_64"
+    repo: "Red Hat Enterprise Linux 8 for x86_64 - Supplementary (RPMs)"
+    version: "8"
+
+#enable repos that do not require releasever
+products_worv:
+  - name: "Red Hat Enterprise Linux Server"
+    repo: "Red Hat Satellite Maintenance 6 (for RHEL 7 Server) (RPMs)"
+  - name: "Red Hat Enterprise Linux Server"
+    repo: "Red Hat Enterprise Linux 7 Server - Extras (RPMs)"
+  - name: "Red Hat Enterprise Linux Server"
+    repo: "Red Hat Satellite Tools 6.6 (for RHEL 7 Server) (RPMs)"
+  - name: "Red Hat OpenShift Container Platform"
+    repo: "Red Hat OpenShift Container Platform 3.11 (RPMs)"
+  - name: "Red Hat Ansible Engine"
+    repo: "Red Hat Ansible Engine 2.6 RPMs for Red Hat Enterprise Linux 7 Server"
+  - name: "Red Hat Satellite"
+    repo: "Red Hat Satellite 6.6 (for RHEL 7 Server) (RPMs)"
+  - name: "Red Hat Ansible Engine"
+    repo: "Red Hat Ansible Engine 2.8 RPMs for Red Hat Enterprise Linux 7 Server"
+  - name: "Red Hat Enterprise Linux for x86_64"
+    repo: "Red Hat Satellite Tools 6.6 for RHEL 8 x86_64 (RPMs)"
+
+hc:
+ - name: generic_hosts
+ - name: ocp_hosts
+
+
+
+organization_config:
+  - name: "{{ foreman_initial_organization }}"
+    locations: "{{ foreman_initial_location }}"
+satellite_async_repo_sync: false
+satellite_show_changed_for_repo_sync: true
+hostgroup_config:
+  - name: openscap
+    organization: "{{ foreman_initial_organization }}"
+    location: "{{ foreman_initial_location }}"
+    architecture: x86_64
+    content_lifecycle_name: Library
+    scap_profile_id: 22
+    scap_scan_period: weekly
+    scap_scan_day: sunday
+openscap_puppet_classes: foreman_scap_client,foreman_scap_client::params,stdlib,stdlib::stages
+satellite_organizations:
+  - name: "{{ foreman_initial_organization }}"
+    label: "{{ foreman_initial_organization }}"
+    description: ""
+    locations:
+      - name: "{{ foreman_initial_location }}"
+        description: ""
+
+    host_collections:
+      - name: generic_hosts
+        description: ""
+        max_hosts: 100
+        unlimited_hosts: true
+      - name: ocp_hosts
+        description: ""
+        max_hosts: 100
+        unlimited_hosts: true
