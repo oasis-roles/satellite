@@ -1,0 +1,27 @@
+---
+# MY SATELLITE ENVIRONMENT VARIABLES
+# main vars
+satellite_deployment_hostname_short: "sat"
+satellite_deployment_hostname_full: "sat.domain.org"
+satellite_deployment_admin_username: "admin"
+satellite_deployment_admin_password: "123456"
+satellite_deployment_organization: "ORG"
+satellite_deployment_location: "BRNO"
+
+# install
+satellite_deployment_plugin_packages:
+  - "foreman-discovery-image"
+
+# registration vars
+satellite_deployment_rhn_user: "rhn_user"
+satellite_deployment_rhn_password: "RhnPassW0rD"
+
+# answers for sattelite installer
+satellite_deployment_answers:
+  "foreman-initial-organization": "{{ satellite_deployment_organization }}"
+  "foreman-initial-location": "{{ satellite_deployment_location }}"
+  "foreman-admin-username": "{{ satellite_deployment_admin_username }}"
+  "foreman-admin-password": "{{ satellite_deployment_admin_password }}"
+
+# configure_satellite:
+satellite_deployment_manifest_path: "http://my.local.server/sat-manifest.zip"
