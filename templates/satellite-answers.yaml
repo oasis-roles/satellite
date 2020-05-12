@@ -69,7 +69,7 @@ foreman_proxy:
   http: {{ satellite_proxy_http }}
   ssl_port: {{ satellite_proxy_ssl_port }}
   ssl: {{ satellite_proxy_ssl }}
-  templates: true
+  templates: false
   ssl_ca: "/etc/foreman-proxy/ssl_ca.pem"
   ssl_cert: "/etc/foreman-proxy/ssl_cert.pem"
   ssl_key: "/etc/foreman-proxy/ssl_key.pem"
