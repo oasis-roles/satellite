@@ -36,7 +36,9 @@ foreman:
   max_keepalive_requests: 10000
   user_groups: []
 foreman::cli: true
+foreman::cli::ansible: true
 foreman::cli::kubevirt: false
+foreman::cli::virt_who_configure: true
 foreman::compute::ec2: {{ satellite_compute_ec2 }}
 foreman::compute::gce: {{ satellite_compute_gce }}
 foreman::compute::libvirt: {{ satellite_compute_libvirt }}
@@ -50,11 +52,14 @@ foreman::plugin::tasks:
     cron_line: 45 19 * * *
 foreman::plugin::templates: true
 foreman::plugin::remote_execution: true
+foreman::plugin::remote_execution::cockpit: false
 foreman::plugin::openscap: true
 foreman::plugin::kubevirt: false
 foreman::plugin::hooks: true
+foreman::plugin::inventory_upload: false
 foreman::plugin::discovery: true
 foreman::plugin::bootdisk: false
+foreman::plugin::virt_who_configure: true
 foreman_proxy:
   dns: {{ satellite_proxy_dns }}
   dns_managed: {{ satellite_proxy_dns_managed }}
@@ -64,7 +69,7 @@ foreman_proxy:
   http: {{ satellite_proxy_http }}
   ssl_port: {{ satellite_proxy_ssl_port }}
   ssl: {{ satellite_proxy_ssl }}
-  templates: true
+  templates: false
   ssl_ca: "/etc/foreman-proxy/ssl_ca.pem"
   ssl_cert: "/etc/foreman-proxy/ssl_cert.pem"
   ssl_key: "/etc/foreman-proxy/ssl_key.pem"
@@ -99,3 +104,5 @@ puppet:
   server_foreman_ssl_ca: "/etc/pki/katello/puppet/puppet_client_ca.crt"
 foreman_proxy::plugin::dns::infoblox: false
 foreman_proxy::plugin::dhcp::infoblox: false
+foreman::cli::azure: true
+foreman::plugin::azure: true

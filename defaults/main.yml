@@ -8,7 +8,7 @@ satellite_enable_ssl: true
 satellite_ssl_port: 443
 satellite_http_port: 80
 satellite_proxy_http_port: 8000
-satellite_proxy_http: true
+satellite_proxy_http: false
 satellite_proxy_ssl_port: 9090
 satellite_proxy_ssl: true
 satellite_proxy_dhcp: false
