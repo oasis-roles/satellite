@@ -12,8 +12,8 @@ certs:
   deploy: true
   group: foreman
 foreman:
-  admin_username: {{ satellite_admin_username }}
-  admin_password: {{ satellite_admin_password }}
+  initial_admin_username: {{ satellite_admin_username }}
+  initial_admin_password: {{ satellite_admin_password }}
   initial_organization: {{ satellite_organization }}
   initial_location: {{ satellite_location }}
   ssl: {{ satellite_enable_ssl }}
